@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>선형 회귀 실습 랩 🤖</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Black+Han+Sans&display=swap');
+
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1928;
+    --card: #22213a;
+    --border: #35335a;
+    --accent: #7c5cbf;
+    --accent2: #e05c8a;
+    --accent3: #3ecfb2;
+    --accent4: #f5a623;
+    --text: #e8e6f0;
+    --text-muted: #9896b0;
+    --success: #3ecfb2;
+    --warning: #f5a623;
+    --danger: #e05c8a;
+    --step-active: #7c5cbf;
+    --step-done: #3ecfb2;
+    --step-inactive: #35335a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Gowun Dodum', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #1a1928 0%, #2d1f4e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header .logo {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 22px;
+    background: linear-gradient(90deg, #7c5cbf, #e05c8a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* STEPPER */
+  .stepper {
+    display: flex;
+    align-items: center;
+    padding: 20px 32px;
+    gap: 0;
+    overflow-x: auto;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .step-item {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .step-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: bold;
+    border: 2px solid var(--step-inactive);
+    color: var(--text-muted);
+    background: var(--card);
+    transition: all 0.3s;
+  }
+  .step-circle.active {
+    border-color: var(--step-active);
+    background: var(--step-active);
+    color: white;
+    box-shadow: 0 0 12px rgba(124,92,191,0.5);
+  }
+  .step-circle.done {
+    border-color: var(--step-done);
+    background: var(--step-done);
+    color: white;
+  }
+  .step-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 0 8px;
+    white-space: nowrap;
+  }
+  .step-label.active { color: var(--accent); font-weight: bold; }
+  .step-connector {
+    width: 28px; height: 2px;
+    background: var(--step-inactive);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .step-connector.done { background: var(--step-done); }
+
+  /* MAIN CONTENT */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  .section {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .section.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 18px;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title .icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 24px;
+    background: linear-gradient(90deg, #7c5cbf, #e05c8a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .section-header p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* DATASET TABLE */
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: #2d1f4e; }
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    color: var(--accent);
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  td {
+    padding: 9px 14px;
+    border-top: 1px solid var(--border);
+    color: var(--text);
+  }
+  tr:hover td { background: rgba(124,92,191,0.08); }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  .badge-purple { background: rgba(124,92,191,0.2); color: #b99ef5; }
+  .badge-teal   { background: rgba(62,207,178,0.2); color: #3ecfb2; }
+
+  /* SELECTS / INPUTS */
+  select, input[type=number], input[type=text] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media(max-width:600px) { .form-row { grid-template-columns: 1fr; } }
+
+  .form-label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  /* BUTTONS */
+  .btn {
+    padding: 11px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #9c5ce0);
+    color: white;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,92,191,0.4); }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-teal {
+    background: linear-gradient(135deg, var(--accent3), #26a891);
+    color: #0f0e17;
+  }
+  .btn-teal:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(62,207,178,0.4); }
+  .btn-warn {
+    background: linear-gradient(135deg, var(--accent4), #d4881a);
+    color: #0f0e17;
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  .btn-group {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  /* INFO BOX */
+  .info-box {
+    background: rgba(124,92,191,0.1);
+    border: 1px solid rgba(124,92,191,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .info-box strong { color: var(--accent); }
+  .success-box {
+    background: rgba(62,207,178,0.1);
+    border: 1px solid rgba(62,207,178,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #3ecfb2;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 26px;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 12px; color: var(--text-muted); }
+
+  /* CHART CONTAINER */
+  .chart-container {
+    position: relative;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  /* PREDICTION TABLE */
+  .pred-table th { color: var(--accent3); }
+  .correct-row td { background: rgba(62,207,178,0.06); }
+  .wrong-row td { background: rgba(224,92,138,0.06); }
+  .pred-icon { font-size: 16px; }
+
+  /* ACCURACY GAUGE */
+  .gauge-wrap {
+    text-align: center;
+    padding: 20px;
+  }
+  .gauge-value {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .gauge-bar {
+    height: 16px;
+    background: var(--surface);
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .gauge-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s ease;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+  }
+
+  /* SPLIT VISUAL */
+  .split-bar {
+    display: flex;
+    height: 40px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 14px 0;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  .split-train {
+    background: linear-gradient(135deg, var(--accent), #9c5ce0);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: width 0.5s;
+  }
+  .split-test {
+    background: linear-gradient(135deg, var(--accent2), #c0396a);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: width 0.5s;
+  }
+
+  /* PROGRESS STEPS */
+  .progress-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* EXTRACTED TABLE HIGHLIGHT */
+  .highlight-col {
+    background: rgba(124,92,191,0.15) !important;
+    font-weight: bold;
+  }
+  .highlight-col-label {
+    background: rgba(224,92,138,0.15) !important;
+    font-weight: bold;
+  }
+
+  /* EQUATION DISPLAY */
+  .equation {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 24px;
+    text-align: center;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 20px;
+    color: var(--accent3);
+    margin: 12px 0;
+    letter-spacing: 1px;
+  }
+
+  /* SLIDER */
+  input[type=range] {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+  }
+  .chip {
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .chip.selected-x { background: rgba(124,92,191,0.25); border-color: var(--accent); color: #b99ef5; }
+  .chip.selected-y { background: rgba(224,92,138,0.25); border-color: var(--accent2); color: #f5a0bf; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">🤖 선형 회귀 실습 랩</div>
+    <div class="subtitle">인공지능이 어떻게 예측하는지 직접 실험해 보세요</div>
+  </div>
+</header>
+
+<!-- STEPPER -->
+<div class="stepper" id="stepper">
+  <div class="step-item" onclick="goTo(0)">
+    <div class="step-circle active" id="sc0">1</div>
+    <div class="step-label active" id="sl0">데이터셋</div>
+  </div>
+  <div class="step-connector" id="conn0"></div>
+  <div class="step-item" onclick="goTo(1)">
+    <div class="step-circle" id="sc1">2</div>
+    <div class="step-label" id="sl1">변수 선택</div>
+  </div>
+  <div class="step-connector" id="conn1"></div>
+  <div class="step-item" onclick="goTo(2)">
+    <div class="step-circle" id="sc2">3</div>
+    <div class="step-label" id="sl2">추출</div>
+  </div>
+  <div class="step-connector" id="conn2"></div>
+  <div class="step-item" onclick="goTo(3)">
+    <div class="step-circle" id="sc3">4</div>
+    <div class="step-label" id="sl3">분류</div>
+  </div>
+  <div class="step-connector" id="conn3"></div>
+  <div class="step-item" onclick="goTo(4)">
+    <div class="step-circle" id="sc4">5</div>
+    <div class="step-label" id="sl4">산점도</div>
+  </div>
+  <div class="step-connector" id="conn4"></div>
+  <div class="step-item" onclick="goTo(5)">
+    <div class="step-circle" id="sc5">6</div>
+    <div class="step-label" id="sl5">회귀선</div>
+  </div>
+  <div class="step-connector" id="conn5"></div>
+  <div class="step-item" onclick="goTo(6)">
+    <div class="step-circle" id="sc6">7</div>
+    <div class="step-label" id="sl6">예측</div>
+  </div>
+  <div class="step-connector" id="conn6"></div>
+  <div class="step-item" onclick="goTo(7)">
+    <div class="step-circle" id="sc7">8</div>
+    <div class="step-label" id="sl7">정답률</div>
+  </div>
+</div>
+
+<main>
+
+<!-- ===================== STEP 1: 데이터셋 ===================== -->
+<div class="section active" id="sec0">
+  <div class="section-header">
+    <h2>📊 데이터셋 살펴보기</h2>
+    <p>아래 표는 학생들의 다양한 정보를 담은 데이터셋이에요. 각 열(속성)이 무엇을 의미하는지 살펴보세요!</p>
+  </div>
+
+  <div class="info-box">
+    <strong>데이터셋이란?</strong> 인공지능을 학습시키기 위해 모아놓은 정보의 모음이에요. 각 행(가로줄)은 한 명의 학생 데이터이고, 각 열(세로줄)은 속성(Feature)이라고 해요.
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="icon" style="background:rgba(124,92,191,0.2)">📋</div> 학생 성적 데이터셋 (30명)</div>
+    <div class="table-wrapper">
+      <table id="fullTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>공부시간(시간)</th>
+            <th>수면시간(시간)</th>
+            <th>결석횟수(일)</th>
+            <th>독서량(권)</th>
+            <th>운동횟수(회/주)</th>
+            <th>시험점수</th>
+          </tr>
+        </thead>
+        <tbody id="fullTableBody"></tbody>
+      </table>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="goTo(1)">다음 단계 → 변수 선택하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STEP 2: 변수 선택 ===================== -->
+<div class="section" id="sec1">
+  <div class="section-header">
+    <h2>🎯 독립 변수와 레이블 선택</h2>
+    <p>어떤 속성을 이용해서 무엇을 예측할지 정해볼게요. 선택에 따라 AI 성능이 달라진답니다!</p>
+  </div>
+
+  <div class="info-box">
+    <strong>독립 변수(X)</strong>: AI에게 알려줄 입력 정보예요.<br>
+    <strong>레이블(Y)</strong>: AI가 예측해야 할 정답이에요. 여기서는 <strong>시험점수</strong>를 예측해요.<br>
+    독립 변수를 어떻게 고르느냐에 따라 AI의 예측 성능이 달라지는 걸 확인해 보세요!
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="icon" style="background:rgba(62,207,178,0.2)">🔧</div> 변수 설정</div>
+
+    <div style="margin-bottom:20px">
+      <label class="form-label">📌 독립 변수 (X) 선택 — <span style="color:var(--accent)">하나만 선택</span></label>
+      <div class="chips" id="xChips">
+        <div class="chip" onclick="selectX('공부시간')" id="chip_공부시간">⏰ 공부시간</div>
+        <div class="chip" onclick="selectX('수면시간')" id="chip_수면시간">😴 수면시간</div>
+        <div class="chip" onclick="selectX('결석횟수')" id="chip_결석횟수">🚫 결석횟수</div>
+        <div class="chip" onclick="selectX('독서량')" id="chip_독서량">📚 독서량</div>
+        <div class="chip" onclick="selectX('운동횟수')" id="chip_운동횟수">🏃 운동횟수</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <label class="form-label">🎯 레이블 (Y) — 고정</label>
+      <div class="chips">
+        <div class="chip selected-y">📝 시험점수 (고정)</div>
+      </div>
+    </div>
+
+    <div id="xSelected" class="success-box" style="display:none"></div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goTo(0)">← 이전</button>
+      <button class="btn btn-primary" id="btnExtract" onclick="goTo(2)" disabled>다음 단계 → 데이터 추출</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STEP 3: 추출 ===================== -->
+<div class="section" id="sec2">
+  <div class="section-header">
+    <h2>✂️ 데이터셋 추출</h2>
+    <p>선택한 독립 변수와 레이블만 남긴 데이터셋을 만들어요!</p>
+  </div>
+
+  <div class="info-box">
+    인공지능 학습에 필요한 속성만 골라냅니다. <strong style="color:var(--accent)">보라색</strong>이 독립 변수, <strong style="color:var(--accent2)">분홍색</strong>이 레이블이에요.
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="icon" style="background:rgba(245,166,35,0.2)">📌</div> 추출된 데이터셋</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th class="highlight-col" id="extractedXHeader">X (독립 변수)</th>
+            <th class="highlight-col-label">Y (시험점수)</th>
+          </tr>
+        </thead>
+        <tbody id="extractedTableBody"></tbody>
+      </table>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goTo(1)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(3)">다음 단계 → 훈련/테스트 분류</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STEP 4: 분류 ===================== -->
+<div class="section" id="sec3">
+  <div class="section-header">
+    <h2>📦 훈련 / 테스트 데이터 분류</h2>
+    <p>데이터를 두 가지로 나눠요. AI를 가르치는 훈련 데이터와, AI의 실력을 확인하는 테스트 데이터!</p>
+  </div>
+
+  <div class="info-box">
+    <strong>훈련 데이터</strong>: AI를 학습시키는 데 사용해요.<br>
+    <strong>테스트 데이터</strong>: AI가 배운 것을 시험 보는 데 사용해요. 학습에 사용하지 않은 데이터로 확인해야 진짜 실력을 알 수 있어요!
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="icon" style="background:rgba(224,92,138,0.2)">⚙️</div> 분류 비율 설정</div>
+
+    <label class="form-label">훈련 데이터 비율: <strong id="splitLabel" style="color:var(--accent)">70%</strong></label>
+    <input type="range" min="50" max="90" step="10" value="70" id="splitSlider" oninput="updateSplit(this.value)">
+
+    <div class="split-bar" style="margin-top:16px">
+      <div class="split-train" id="splitTrain" style="width:70%">훈련 데이터</div>
+      <div class="split-test" id="splitTest" style="width:30%">테스트</div>
+    </div>
+
+    <div class="stats-row" style="margin-top:16px">
+      <div class="stat-card">
+        <div class="stat-value" id="trainCount" style="color:var(--accent)">14</div>
+        <div class="stat-label">훈련 데이터 수</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="testCount" style="color:var(--accent2)">6</div>
+        <div class="stat-label">테스트 데이터 수</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--accent3)">30</div>
+        <div class="stat-label">전체 데이터 수</div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goTo(2)">← 이전</button>
+      <button class="btn btn-teal" onclick="doSplit(); goTo(4)">✅ 분류 완료 → 산점도 보기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STEP 5: 산점도 ===================== -->
+<div class="section" id="sec4">
+  <div class="section-header">
+    <h2>🔵 산점도 시각화</h2>
+    <p>훈련 데이터를 점으로 나타낸 산점도예요. X축은 독립 변수, Y축은 시험점수!</p>
+  </div>
+
+  <div class="info-box">
+    각 점은 한 명의 학생 데이터예요. 점들이 어느 방향으로 퍼져 있는지 관찰해 보세요. 이 패턴을 이용해서 AI가 직선을 찾아요!
+  </div>
+
+  <div class="card">
+    <div class="chart-container">
+      <canvas id="scatterChart"></canvas>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goTo(3)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(5)">다음 단계 → 회귀선 그리기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STEP 6: 회귀선 ===================== -->
+<div class="section" id="sec5">
+  <div class="section-header">
+    <h2>📏 회귀선 (직선) 그리기</h2>
+    <p>AI가 훈련 데이터를 분석해서 가장 잘 맞는 직선을 찾아냈어요!</p>
+  </div>
+
+  <div class="info-box">
+    <strong>선형 회귀</strong>란 데이터를 가장 잘 나타내는 직선을 찾는 방법이에요.<br>
+    y = ax + b 형태의 식으로, a는 기울기, b는 절편이에요.
+  </div>
+
+  <div class="card">
+    <div id="equationDisplay" class="equation">y = ? × x + ?</div>
+    <div class="chart-container">
+      <canvas id="regressionChart"></canvas>
+    </div>
+    <div id="regressionInfo" class="success-box" style="display:none"></div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goTo(4)">← 이전</button>
+      <button class="btn btn-warn" onclick="computeRegression(); drawRegressionChart()">🤖 AI 직선 계산하기!</button>
+      <button class="btn btn-primary" id="btnPredict" onclick="goTo(6)" disabled>다음 단계 → 예측해보기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STEP 7: 예측 ===================== -->
+<div class="section" id="sec6">
+  <div class="section-header">
+    <h2>🎲 테스트 데이터 예측</h2>
+    <p>AI가 한 번도 본 적 없는 테스트 데이터로 시험을 치뤄요!</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="icon" style="background:rgba(245,166,35,0.2)">🔮</div> 예측 결과</div>
+    <div class="table-wrapper">
+      <table class="pred-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th id="predXHeader">X 값</th>
+            <th>AI 예측값</th>
+            <th>실제 정답</th>
+            <th>오차</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody id="predTableBody"></tbody>
+      </table>
+    </div>
+    <div class="info-box" style="margin-top:14px;font-size:12px;">
+      ✅ 오차가 <strong>±10점 이내</strong>이면 맞은 것으로 간주해요.
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goTo(5)">← 이전</button>
+      <button class="btn btn-primary" onclick="goTo(7)">다음 단계 → 정답률 확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STEP 8: 정답률 ===================== -->
+<div class="section" id="sec7">
+  <div class="section-header">
+    <h2>🏆 AI 정답률</h2>
+    <p>이 독립 변수로 학습한 AI의 점수는 몇 점일까요?</p>
+  </div>
+
+  <div class="card">
+    <div class="gauge-wrap">
+      <div class="stat-label" style="margin-bottom:8px;font-size:14px;">AI 예측 정확도</div>
+      <div class="gauge-value" id="accuracyValue" style="color:var(--accent3)">0%</div>
+      <div class="gauge-bar">
+        <div class="gauge-fill" id="gaugeFill" style="width:0%"></div>
+      </div>
+      <div id="accuracyComment" style="color:var(--text-muted);font-size:14px;margin-top:8px"></div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="finalMSE" style="color:var(--warning)">-</div>
+        <div class="stat-label">평균 오차 (MAE)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="finalR2" style="color:var(--accent)">-</div>
+        <div class="stat-label">R² 결정계수</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="finalCorrect" style="color:var(--success)">-</div>
+        <div class="stat-label">맞은 문제 수</div>
+      </div>
+    </div>
+
+    <div id="restartHint" class="info-box" style="margin-top:8px">
+      💡 <strong>다시 해볼까요?</strong> 독립 변수를 바꿔서 AI 성능이 어떻게 달라지는지 비교해 보세요!
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goTo(6)">← 이전</button>
+      <button class="btn btn-primary" onclick="restart()">🔄 처음부터 다시 (변수 바꾸기)</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ==================== DATA ====================
+const RAW_DATA = [
+  {id:1,  공부시간:2, 수면시간:6, 결석횟수:5, 독서량:1, 운동횟수:3, 시험점수:45},
+  {id:2,  공부시간:3, 수면시간:7, 결석횟수:3, 독서량:2, 운동횟수:2, 시험점수:52},
+  {id:3,  공부시간:5, 수면시간:8, 결석횟수:1, 독서량:4, 운동횟수:4, 시험점수:68},
+  {id:4,  공부시간:1, 수면시간:5, 결석횟수:8, 독서량:0, 운동횟수:1, 시험점수:38},
+  {id:5,  공부시간:7, 수면시간:7, 결석횟수:0, 독서량:5, 운동횟수:5, 시험점수:80},
+  {id:6,  공부시간:4, 수면시간:6, 결석횟수:2, 독서량:3, 운동횟수:3, 시험점수:62},
+  {id:7,  공부시간:6, 수면시간:8, 결석횟수:1, 독서량:5, 운동횟수:4, 시험점수:76},
+  {id:8,  공부시간:2, 수면시간:5, 결석횟수:6, 독서량:1, 운동횟수:2, 시험점수:41},
+  {id:9,  공부시간:8, 수면시간:8, 결석횟수:0, 독서량:6, 운동횟수:5, 시험점수:90},
+  {id:10, 공부시간:3, 수면시간:7, 결석횟수:4, 독서량:2, 운동횟수:3, 시험점수:55},
+  {id:11, 공부시간:5, 수면시간:7, 결석횟수:2, 독서량:4, 운동횟수:4, 시험점수:70},
+  {id:12, 공부시간:1, 수면시간:6, 결석횟수:7, 독서량:1, 운동횟수:1, 시험점수:35},
+  {id:13, 공부시간:6, 수면시간:8, 결석횟수:1, 독서량:5, 운동횟수:5, 시험점수:78},
+  {id:14, 공부시간:4, 수면시간:7, 결석횟수:3, 독서량:3, 운동횟수:3, 시험점수:60},
+  {id:15, 공부시간:7, 수면시간:8, 결석횟수:0, 독서량:6, 운동횟수:5, 시험점수:85},
+  {id:16, 공부시간:2, 수면시간:6, 결석횟수:5, 독서량:2, 운동횟수:2, 시험점수:47},
+  {id:17, 공부시간:5, 수면시간:7, 결석횟수:2, 독서량:4, 운동횟수:4, 시험점수:66},
+  {id:18, 공부시간:3, 수면시간:6, 결석횟수:4, 독서량:2, 운동횟수:2, 시험점수:50},
+  {id:19, 공부시간:8, 수면시간:9, 결석횟수:0, 독서량:7, 운동횟수:6, 시험점수:92},
+  {id:20, 공부시간:4, 수면시간:7, 결석횟수:3, 독서량:3, 운동횟수:3, 시험점수:58},
+  {id:21, 공부시간:9, 수면시간:8, 결석횟수:0, 독서량:6, 운동횟수:2, 시험점수:95},
+  {id:22, 공부시간:1, 수면시간:7, 결석횟수:9, 독서량:5, 운동횟수:5, 시험점수:32},
+  {id:23, 공부시간:6, 수면시간:6, 결석횟수:1, 독서량:2, 운동횟수:6, 시험점수:74},
+  {id:24, 공부시간:3, 수면시간:5, 결석횟수:6, 독서량:4, 운동횟수:1, 시험점수:44},
+  {id:25, 공부시간:7, 수면시간:8, 결석횟수:1, 독서량:3, 운동횟수:4, 시험점수:82},
+  {id:26, 공부시간:2, 수면시간:6, 결석횟수:7, 독서량:6, 운동횟수:3, 시험점수:39},
+  {id:27, 공부시간:5, 수면시간:8, 결석횟수:2, 독서량:2, 운동횟수:5, 시험점수:69},
+  {id:28, 공부시간:8, 수면시간:7, 결석횟수:0, 독서량:5, 운동횟수:2, 시험점수:88},
+  {id:29, 공부시간:1, 수면시간:5, 결석횟수:8, 독서량:3, 운동횟수:6, 시험점수:30},
+  {id:30, 공부시간:4, 수면시간:9, 결석횟수:4, 독서량:4, 운동횟수:4, 시험점수:56},
+];
+
+let selectedX = null;
+let trainData = [], testData = [];
+let slope = 0, intercept = 0;
+let regressionDone = false;
+let currentStep = 0;
+let scatterChartObj = null, regChartObj = null;
+
+// ==================== INIT ====================
+function init() {
+  renderFullTable();
+}
+
+function renderFullTable() {
+  const tbody = document.getElementById('fullTableBody');
+  tbody.innerHTML = RAW_DATA.map(r => `
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.공부시간}</td>
+      <td>${r.수면시간}</td>
+      <td>${r.결석횟수}</td>
+      <td>${r.독서량}</td>
+      <td>${r.운동횟수}</td>
+      <td><span class="badge badge-teal">${r.시험점수}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ==================== STEPPER ====================
+function goTo(step) {
+  if (step > currentStep + 1 && step > 1) {
+    // allow going back anytime, forward only if current done
+  }
+
+  document.getElementById('sec' + currentStep).classList.remove('active');
+
+  // update circles
+  for (let i = 0; i < 8; i++) {
+    const c = document.getElementById('sc' + i);
+    const l = document.getElementById('sl' + i);
+    if (i < step) {
+      c.className = 'step-circle done'; c.innerHTML = '✓';
+      l.className = 'step-label';
+    } else if (i === step) {
+      c.className = 'step-circle active'; c.innerHTML = i + 1;
+      l.className = 'step-label active';
+    } else {
+      c.className = 'step-circle'; c.innerHTML = i + 1;
+      l.className = 'step-label';
+    }
+    if (i < 7) {
+      document.getElementById('conn' + i).className = 'step-connector' + (i < step ? ' done' : '');
+    }
+  }
+
+  currentStep = step;
+  document.getElementById('sec' + step).classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+
+  // trigger renders
+  if (step === 2) renderExtractedTable();
+  if (step === 4) renderScatterChart();
+  if (step === 5) renderRegressionBase();
+  if (step === 6) renderPredictions();
+  if (step === 7) renderAccuracy();
+}
+
+// ==================== STEP 2: SELECT X ====================
+function selectX(col) {
+  selectedX = col;
+  document.querySelectorAll('.chip').forEach(c => {
+    c.classList.remove('selected-x');
+  });
+  document.getElementById('chip_' + col).classList.add('selected-x');
+  document.getElementById('xSelected').style.display = 'block';
+  document.getElementById('xSelected').innerHTML = `✅ <strong>${col}</strong> 을(를) 독립 변수로 선택했어요!`;
+  document.getElementById('btnExtract').disabled = false;
+  regressionDone = false;
+  document.getElementById('btnPredict').disabled = true;
+}
+
+// ==================== STEP 3: EXTRACT ====================
+function renderExtractedTable() {
+  document.getElementById('extractedXHeader').textContent = selectedX + ' (X)';
+  const tbody = document.getElementById('extractedTableBody');
+  tbody.innerHTML = RAW_DATA.map(r => `
+    <tr>
+      <td>${r.id}</td>
+      <td class="highlight-col">${r[selectedX]}</td>
+      <td class="highlight-col-label">${r.시험점수}</td>
+    </tr>
+  `).join('');
+}
+
+// ==================== STEP 4: SPLIT ====================
+function updateSplit(val) {
+  document.getElementById('splitLabel').textContent = val + '%';
+  const train = Math.round(30 * val / 100);
+  const test = 30 - train;
+  document.getElementById('trainCount').textContent = train;
+  document.getElementById('testCount').textContent = test;
+  document.getElementById('splitTrain').style.width = val + '%';
+  document.getElementById('splitTest').style.width = (100 - val) + '%';
+}
+
+function doSplit() {
+  const ratio = parseInt(document.getElementById('splitSlider').value) / 100;
+  const shuffled = [...RAW_DATA].sort(() => Math.random() - 0.5);
+  const splitIdx = Math.round(20 * ratio);
+  trainData = shuffled.slice(0, splitIdx);
+  testData = shuffled.slice(splitIdx);
+  regressionDone = false;
+  document.getElementById('btnPredict').disabled = true;
+}
+
+// ==================== STEP 5: SCATTER ====================
+function renderScatterChart() {
+  if (!trainData.length) doSplit();
+  const ctx = document.getElementById('scatterChart').getContext('2d');
+  if (scatterChartObj) scatterChartObj.destroy();
+
+  const pts = trainData.map(r => ({x: r[selectedX], y: r.시험점수}));
+
+  scatterChartObj = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: '훈련 데이터',
+        data: pts,
+        backgroundColor: 'rgba(124,92,191,0.75)',
+        pointRadius: 8,
+        pointHoverRadius: 10,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#e8e6f0' } },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${selectedX}: ${ctx.raw.x}, 시험점수: ${ctx.raw.y}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: selectedX, color: '#9896b0' },
+          ticks: { color: '#9896b0' },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        },
+        y: {
+          title: { display: true, text: '시험점수', color: '#9896b0' },
+          ticks: { color: '#9896b0' },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          min: 20, max: 100
+        }
+      }
+    }
+  });
+}
+
+// ==================== STEP 6: REGRESSION ====================
+let animFrameId = null;
+
+function computeRegression() {
+  const xs = trainData.map(r => r[selectedX]);
+  const ys = trainData.map(r => r.시험점수);
+  const n = xs.length;
+  const meanX = xs.reduce((a,b) => a+b, 0) / n;
+  const meanY = ys.reduce((a,b) => a+b, 0) / n;
+  const num = xs.reduce((s, x, i) => s + (x - meanX) * (ys[i] - meanY), 0);
+  const den = xs.reduce((s, x) => s + (x - meanX) ** 2, 0);
+  slope = den !== 0 ? num / den : 0;
+  intercept = meanY - slope * meanX;
+  regressionDone = true;
+  document.getElementById('btnPredict').disabled = false;
+  animateRegressionLine();
+}
+
+function renderRegressionBase() {
+  if (!trainData.length) doSplit();
+  if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+
+  const xs = trainData.map(r => r[selectedX]);
+  const minX = Math.min(...xs) - 1;
+  const maxX = Math.max(...xs) + 1;
+  const pts = trainData.map(r => ({x: r[selectedX], y: r.시험점수}));
+  const meanY = pts.reduce((s,p) => s + p.y, 0) / pts.length;
+
+  const ctx = document.getElementById('regressionChart').getContext('2d');
+  if (regChartObj) regChartObj.destroy();
+
+  regChartObj = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: '훈련 데이터',
+          data: pts,
+          backgroundColor: 'rgba(124,92,191,0.75)',
+          pointRadius: 8,
+          order: 2,
+        },
+        {
+          label: '회귀선 (AI 탐색 중)',
+          data: [{x: minX, y: meanY}, {x: maxX, y: meanY}],
+          type: 'line',
+          borderColor: 'rgba(62,207,178,0.3)',
+          borderWidth: 3,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      plugins: { legend: { labels: { color: '#e8e6f0' } } },
+      scales: {
+        x: {
+          title: { display: true, text: selectedX, color: '#9896b0' },
+          ticks: { color: '#9896b0' },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          min: minX, max: maxX
+        },
+        y: {
+          title: { display: true, text: '시험점수', color: '#9896b0' },
+          ticks: { color: '#9896b0' },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          min: 20, max: 100
+        }
+      }
+    }
+  });
+
+  document.getElementById('equationDisplay').textContent = `시험점수 = 0.00 × ${selectedX} + ${meanY.toFixed(2)}`;
+  document.getElementById('regressionInfo').style.display = 'none';
+}
+
+function animateRegressionLine() {
+  if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+
+  const xs = trainData.map(r => r[selectedX]);
+  const minX = Math.min(...xs) - 1;
+  const maxX = Math.max(...xs) + 1;
+  const pts = trainData.map(r => ({x: r[selectedX], y: r.시험점수}));
+  const meanY = pts.reduce((s,p) => s + p.y, 0) / pts.length;
+
+  // Start from slope=0 (horizontal), animate to target slope/intercept
+  const startSlope = 0;
+  const startIntercept = meanY;
+  const targetSlope = slope;
+  const targetIntercept = intercept;
+
+  const duration = 1800;
+  const startTime = performance.now();
+
+  // Ensure chart exists and scatter points are locked
+  if (!regChartObj) renderRegressionBase();
+
+  // Lock scatter dataset
+  regChartObj.data.datasets[0].data = pts;
+
+  function easeInOut(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+  }
+
+  function frame(now) {
+    const elapsed = now - startTime;
+    const raw = Math.min(elapsed / duration, 1);
+    const t = easeInOut(raw);
+
+    const curSlope = startSlope + (targetSlope - startSlope) * t;
+    const curIntercept = startIntercept + (targetIntercept - startIntercept) * t;
+
+    const lineData = [
+      {x: minX, y: curSlope * minX + curIntercept},
+      {x: maxX, y: curSlope * maxX + curIntercept}
+    ];
+
+    // Update only the line dataset, keep scatter fixed
+    regChartObj.data.datasets[1].data = lineData;
+
+    const progress = raw;
+    const alpha = 0.3 + 0.7 * t;
+    if (t >= 1) {
+      regChartObj.data.datasets[1].borderColor = '#3ecfb2';
+      regChartObj.data.datasets[1].borderDash = [];
+      regChartObj.data.datasets[1].label = '회귀선 (AI 예측)';
+    } else {
+      regChartObj.data.datasets[1].borderColor = `rgba(62,207,178,${alpha.toFixed(2)})`;
+      regChartObj.data.datasets[1].borderDash = [6, 4];
+    }
+
+    regChartObj.update('none');
+
+    // Update equation display live
+    const s = curSlope.toFixed(2);
+    const bSign = curIntercept >= 0 ? '+' : '-';
+    const bAbs = Math.abs(curIntercept).toFixed(2);
+    document.getElementById('equationDisplay').textContent = `시험점수 = ${s} × ${selectedX} ${bSign} ${bAbs}`;
+
+    if (raw < 1) {
+      animFrameId = requestAnimationFrame(frame);
+    } else {
+      animFrameId = null;
+      const finalS = targetSlope.toFixed(2);
+      const finalBSign = targetIntercept >= 0 ? '+' : '-';
+      const finalBAbs = Math.abs(targetIntercept).toFixed(2);
+      document.getElementById('equationDisplay').textContent = `시험점수 = ${finalS} × ${selectedX} ${finalBSign} ${finalBAbs}`;
+      document.getElementById('regressionInfo').style.display = 'block';
+      document.getElementById('regressionInfo').innerHTML = `🎉 AI가 직선을 찾았어요! 기울기 <strong>${finalS}</strong>, 절편 <strong>${finalBAbs}</strong><br>
+      ${targetSlope > 0 ? `→ ${selectedX}이 1 증가하면 시험점수가 평균 ${finalS}점 올라가요!` : `→ ${selectedX}이 1 증가하면 시험점수가 평균 ${Math.abs(targetSlope).toFixed(2)}점 내려가요!`}`;
+    }
+  }
+
+  animFrameId = requestAnimationFrame(frame);
+}
+
+function drawRegressionChart() {
+  // kept for compatibility — actual draw is handled by animateRegressionLine
+}
+
+// ==================== STEP 7: PREDICT ====================
+function predict(x) {
+  return Math.round(slope * x + intercept);
+}
+
+function renderPredictions() {
+  document.getElementById('predXHeader').textContent = selectedX + ' (X)';
+  const tbody = document.getElementById('predTableBody');
+  tbody.innerHTML = testData.map((r, i) => {
+    const xVal = r[selectedX];
+    const predicted = predict(xVal);
+    const actual = r.시험점수;
+    const err = Math.abs(predicted - actual);
+    const correct = err <= 10;
+    return `
+      <tr class="${correct ? 'correct-row' : 'wrong-row'}">
+        <td>${i+1}</td>
+        <td>${xVal}</td>
+        <td><strong style="color:var(--accent3)">${predicted}</strong></td>
+        <td>${actual}</td>
+        <td style="color:${err<=10?'var(--success)':'var(--danger)'}">${err}점</td>
+        <td class="pred-icon">${correct ? '✅' : '❌'}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ==================== STEP 8: ACCURACY ====================
+function renderAccuracy() {
+  const results = testData.map(r => {
+    const pred = predict(r[selectedX]);
+    const err = Math.abs(pred - r.시험점수);
+    return {pred, actual: r.시험점수, err, correct: err <= 10};
+  });
+  const correct = results.filter(r => r.correct).length;
+  const total = results.length;
+  const acc = Math.round(correct / total * 100);
+  const mae = (results.reduce((s,r) => s + r.err, 0) / total).toFixed(1);
+
+  // R²
+  const ys = testData.map(r => r.시험점수);
+  const meanY = ys.reduce((a,b)=>a+b,0)/ys.length;
+  const ssTot = ys.reduce((s,y)=>s+(y-meanY)**2,0);
+  const ssRes = results.reduce((s,r)=>s+(r.actual-r.pred)**2,0);
+  const r2 = ssTot > 0 ? (1 - ssRes/ssTot).toFixed(2) : 'N/A';
+
+  document.getElementById('accuracyValue').textContent = acc + '%';
+  document.getElementById('gaugeFill').style.width = acc + '%';
+  document.getElementById('finalMSE').textContent = mae + '점';
+  document.getElementById('finalR2').textContent = r2;
+  document.getElementById('finalCorrect').textContent = correct + '/' + total;
+
+  let comment;
+  if (acc >= 80) comment = '🔥 훌륭해요! 이 변수는 시험점수를 잘 예측해요!';
+  else if (acc >= 60) comment = '👍 나쁘지 않아요! 다른 변수도 비교해 보세요.';
+  else if (acc >= 40) comment = '🤔 아쉽네요. 더 좋은 독립 변수가 있을까요?';
+  else comment = '❗ 이 변수는 시험점수와 관련이 적은 것 같아요!';
+  document.getElementById('accuracyComment').textContent = comment;
+
+  // animate
+  setTimeout(() => {
+    const val = {v: 0};
+    const target = acc;
+    const duration = 1000;
+    const start = Date.now();
+    function anim() {
+      const t = Math.min((Date.now() - start) / duration, 1);
+      const cur = Math.round(t * target);
+      document.getElementById('accuracyValue').textContent = cur + '%';
+      if (t < 1) requestAnimationFrame(anim);
+    }
+    anim();
+  }, 100);
+}
+
+// ==================== RESTART ====================
+function restart() {
+  if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+  selectedX = null;
+  trainData = []; testData = [];
+  slope = 0; intercept = 0;
+  regressionDone = false;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected-x', 'selected-y'));
+  document.getElementById('xSelected').style.display = 'none';
+  document.getElementById('btnExtract').disabled = true;
+  document.getElementById('btnPredict').disabled = true;
+  document.getElementById('equationDisplay').textContent = 'y = ? × x + ?';
+  document.getElementById('regressionInfo').style.display = 'none';
+  if (scatterChartObj) { scatterChartObj.destroy(); scatterChartObj = null; }
+  if (regChartObj) { regChartObj.destroy(); regChartObj = null; }
+  goTo(1);
+}
+
+init();
+</script>
+</body>
+</html>
