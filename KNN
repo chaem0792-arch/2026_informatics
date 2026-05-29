@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-NN 알고리즘 실습</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pass: #3B82F6;
+    --fail: #22C55E;
+    --hold: #F59E0B;
+    --new: #EF4444;
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2538;
+    --border: rgba(255,255,255,0.08);
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --font: 'Noto Sans KR', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+
+  header { margin-bottom: 2rem; }
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+  header p { font-size: 0.875rem; color: var(--muted); margin-top: 4px; }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 1.5rem;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 0;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.18s;
+  }
+  .tab.active { background: var(--bg3); color: #fff; }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* DATA TABLE */
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  thead { background: var(--bg3); }
+  th { padding: 10px 14px; text-align: left; color: var(--muted); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 9px 14px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.85rem; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .badge {
+    display: inline-block; padding: 2px 10px;
+    border-radius: 99px; font-size: 0.75rem; font-weight: 500; font-family: var(--font);
+  }
+  .badge-pass { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .badge-fail { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .badge-hold { background: rgba(245,158,11,0.15); color: #fbbf24; }
+
+  /* CHART SECTION */
+  .chart-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 700px) { .chart-layout { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  .panel h3 { font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 1rem; }
+
+  label { font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 5px; margin-top: 12px; }
+  label:first-of-type { margin-top: 0; }
+  input[type=number] {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type=number]:focus { border-color: rgba(255,255,255,0.25); }
+  input[type=range] {
+    width: 100%;
+    accent-color: var(--pass);
+    height: 4px;
+    margin-top: 2px;
+  }
+
+  .btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg3);
+    color: #fff;
+    font-family: var(--font);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+  .btn-primary {
+    background: var(--pass);
+    border-color: var(--pass);
+  }
+  .btn-primary:hover { background: #2563eb; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 0.78rem; color: var(--muted); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+  .chart-box { position: relative; width: 100%; height: 400px; }
+
+  /* PREDICTION AREA (shown below chart) */
+  .predict-row {
+    display: none;
+    margin-top: 1.5rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  .predict-row.show { display: block; }
+  .predict-row h3 { font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .predict-row p { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+
+  .pred-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pred-btn {
+    padding: 8px 22px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    background: var(--bg3);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pred-btn:hover { border-color: rgba(255,255,255,0.2); }
+  .pred-btn.sel-pass { background: rgba(59,130,246,0.2); border-color: var(--pass); color: #93c5fd; }
+  .pred-btn.sel-fail { background: rgba(34,197,94,0.2); border-color: var(--fail); color: #86efac; }
+  .pred-btn.sel-hold { background: rgba(245,158,11,0.2); border-color: var(--hold); color: #fcd34d; }
+
+  .knn-btn-row { display: flex; gap: 8px; margin-top: 12px; }
+  .knn-btn-row .btn { margin-top: 0; flex: 1; }
+
+  /* RESULT */
+  .result-area { display: none; margin-top: 1rem; }
+  .result-area.show { display: block; }
+  .result-card {
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    border-left: 3px solid var(--pass);
+  }
+  .result-card .res-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .result-card .score-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+  .score-item { font-size: 0.8rem; }
+  .score-item span { font-family: var(--mono); font-weight: 600; }
+  .nn-list { font-size: 0.78rem; color: var(--muted); line-height: 2; margin-top: 6px; }
+  .verdict { margin-top: 8px; font-size: 0.875rem; }
+  .correct { color: #4ade80; font-weight: 600; }
+  .wrong { color: #f87171; font-weight: 600; }
+  .no-pred { color: var(--muted); }
+
+  /* K SLIDER */
+  .k-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+  .k-row input[type=range] { flex: 1; }
+  .k-val { font-family: var(--mono); font-weight: 600; font-size: 1rem; color: #fff; min-width: 20px; text-align: center; }
+
+  .coord-display {
+    background: var(--bg3);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: #fff;
+    margin-top: 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .coord-display span { color: var(--muted); font-size: 0.75rem; }
+
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+  /* RANDOM BUTTON */
+  .btn-random {
+    background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(59,130,246,0.25));
+    border-color: rgba(139,92,246,0.4);
+    color: #c4b5fd;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-random:hover { background: linear-gradient(135deg, rgba(139,92,246,0.4), rgba(59,130,246,0.4)); border-color: rgba(139,92,246,0.6); }
+  .btn-random .spin { display: inline-block; transition: transform 0.5s ease; }
+  .btn-random:active .spin { transform: rotate(180deg); }
+
+  /* TABLE ROW FLASH */
+  @keyframes rowFlash {
+    0%   { background: rgba(139,92,246,0.25); }
+    100% { background: transparent; }
+  }
+  .flash td { animation: rowFlash 0.6s ease-out forwards; }
+
+  /* COUNT BADGE */
+  .count-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.8rem; color: var(--muted); margin-top: 10px;
+  }
+  .count-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* TABLE HEADER ROW with random button */
+  .table-header-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
+  }
+  .table-header-row h3 { font-size: 0.9rem; font-weight: 600; color: #fff; }
+  .btn-rand-sm {
+    padding: 6px 14px;
+    border: 1px solid rgba(139,92,246,0.4);
+    border-radius: 8px;
+    background: rgba(139,92,246,0.15);
+    color: #c4b5fd;
+    font-family: var(--font);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .btn-rand-sm:hover { background: rgba(139,92,246,0.28); border-color: rgba(139,92,246,0.6); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>K-NN 알고리즘 실습</h1>
+    <p>공부 시간 × 수면 시간으로 시험 결과(합격 / 불합격 / 보류)를 분류합니다</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('data')">① 데이터셋</button>
+    <button class="tab" onclick="showTab('chart')">② 산점도 & 예측</button>
+  </div>
+
+  <!-- DATA TAB -->
+  <div id="sec-data" class="section active">
+    <div class="table-header-row">
+      <h3>훈련 데이터셋</h3>
+      <button class="btn-rand-sm" onclick="randomizeDataset()">
+        <span id="dice-icon">🎲</span> 랜덤 데이터 생성
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>공부 시간 (h)</th><th>수면 시간 (h)</th><th>분류</th></tr>
+        </thead>
+        <tbody id="data-tbody"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px">
+      <span class="count-badge"><span class="count-dot" style="background:var(--pass)"></span><span id="cnt-pass">8</span>개 합격</span>
+      <span class="count-badge"><span class="count-dot" style="background:var(--fail)"></span><span id="cnt-fail">8</span>개 불합격</span>
+      <span class="count-badge"><span class="count-dot" style="background:var(--hold)"></span><span id="cnt-hold">4</span>개 보류</span>
+      <span class="count-badge" style="margin-left:auto;color:var(--muted);font-size:0.75rem" id="gen-label"></span>
+    </div>
+  </div>
+
+  <!-- CHART TAB -->
+  <div id="sec-chart" class="section">
+    <div class="chart-layout">
+
+      <!-- LEFT: INPUT PANEL -->
+      <div class="panel">
+        <h3>새 데이터 입력</h3>
+
+        <label>공부 시간 (1 – 10 h)</label>
+        <input type="number" id="inp-study" min="1" max="10" step="0.5" value="5"
+               oninput="onInputChange()">
+
+        <label>수면 시간 (4 – 10 h)</label>
+        <input type="number" id="inp-sleep" min="4" max="10" step="0.5" value="7"
+               oninput="onInputChange()">
+
+        <div class="coord-display" id="coord-display">
+          <span>좌표</span>&nbsp; (5.0, 7.0)
+        </div>
+
+        <button class="btn btn-primary" onclick="plotNewPoint()" style="margin-top:14px">
+          산점도에 찍기 →
+        </button>
+
+        <div class="divider"></div>
+
+        <label>K 값 (이웃 수)</label>
+        <div class="k-row">
+          <input type="range" id="k-slider" min="1" max="10" step="1" value="3" oninput="onKChange(this.value)">
+          <span class="k-val" id="k-val">3</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: CHART -->
+      <div>
+        <div class="legend">
+          <span class="leg"><span class="dot" style="background:var(--pass)"></span>합격</span>
+          <span class="leg"><span class="dot" style="background:var(--fail)"></span>불합격</span>
+          <span class="leg"><span class="dot" style="background:var(--hold)"></span>보류</span>
+          <span class="leg" id="leg-new" style="display:none"><span class="dot" style="background:var(--new);border:2px solid #fff"></span>새 데이터</span>
+          <span class="leg" id="leg-nb" style="display:none"><span class="dot" style="background:#f97316;border:2px solid #ea580c"></span>K 이웃</span>
+        </div>
+        <div class="chart-box">
+          <canvas id="mainChart" role="img" aria-label="훈련 데이터 산점도"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREDICT AREA (below chart+panel) -->
+    <div class="predict-row" id="predict-row">
+      <h3>이 학생의 결과를 예측해 보세요</h3>
+      <p id="pred-prompt">공부 ?h / 수면 ?h 일 때 K=3이면 어떤 결과일까요?</p>
+
+      <div class="pred-btns">
+        <button class="pred-btn" id="pb-pass" onclick="selectPred('합격')">✅ 합격</button>
+        <button class="pred-btn" id="pb-fail" onclick="selectPred('불합격')">❌ 불합격</button>
+        <button class="pred-btn" id="pb-hold" onclick="selectPred('보류')">⏸ 보류</button>
+      </div>
+
+      <div class="knn-btn-row">
+        <button class="btn btn-primary" onclick="runKNN()">K-NN 정답 확인 →</button>
+        <button class="btn" onclick="resetAll()">초기화</button>
+      </div>
+
+      <div class="result-area" id="result-area">
+        <div class="result-card" id="result-card">
+          <div class="res-title" id="res-title"></div>
+          <div class="score-row" id="score-row"></div>
+          <div class="nn-list" id="nn-list"></div>
+          <div class="verdict" id="verdict"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const dataset = [
+  {study:8,sleep:7,label:'합격'},{study:9,sleep:8,label:'합격'},{study:7,sleep:6,label:'합격'},
+  {study:10,sleep:7,label:'합격'},{study:8,sleep:9,label:'합격'},{study:9,sleep:6,label:'합격'},
+  {study:7,sleep:8,label:'합격'},{study:6,sleep:7,label:'합격'},
+  {study:2,sleep:5,label:'불합격'},{study:1,sleep:4,label:'불합격'},{study:3,sleep:5,label:'불합격'},
+  {study:2,sleep:6,label:'불합격'},{study:1,sleep:7,label:'불합격'},{study:3,sleep:4,label:'불합격'},
+  {study:2,sleep:8,label:'불합격'},{study:1,sleep:5,label:'불합격'},
+  {study:5,sleep:6,label:'보류'},{study:4,sleep:7,label:'보류'},{study:5,sleep:5,label:'보류'},
+  {study:6,sleep:5,label:'보류'}
+];
+
+const COLOR = { pass:'#3B82F6', fail:'#22C55E', hold:'#F59E0B', new:'#EF4444', nb:'#f97316' };
+const LABEL_COLOR = { '합격': COLOR.pass, '불합격': COLOR.fail, '보류': COLOR.hold };
+
+let chartInst = null;
+let currentStudy = 5, currentSleep = 7, currentK = 3;
+let newPointPlotted = false;
+let selectedPred = null;
+let neighborsIdx = [];
+let genCount = 0;
+
+/* ─── TABLE ─── */
+function buildTable(flash) {
+  const tb = document.getElementById('data-tbody');
+  const badgeClass = { '합격':'badge-pass', '불합격':'badge-fail', '보류':'badge-hold' };
+  tb.innerHTML = '';
+  dataset.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td>
+      <td>${d.study.toFixed(1)}</td>
+      <td>${d.sleep.toFixed(1)}</td>
+      <td><span class="badge ${badgeClass[d.label]}">${d.label}</span></td>`;
+    if (flash) tr.classList.add('flash');
+    tb.appendChild(tr);
+  });
+  // update counts
+  const counts = { '합격':0, '불합격':0, '보류':0 };
+  dataset.forEach(d => counts[d.label]++);
+  document.getElementById('cnt-pass').textContent = counts['합격'];
+  document.getElementById('cnt-fail').textContent = counts['불합격'];
+  document.getElementById('cnt-hold').textContent = counts['보류'];
+}
+buildTable(false);
+
+/* ─── RANDOMIZE ─── */
+function randomizeDataset() {
+  // Generate realistic random dataset
+  // Pass: high study (6-10), moderate-high sleep (6-10)
+  // Fail: low study (1-4), any sleep (4-8)
+  // Hold: medium study (4-7), medium sleep (5-8) — overlapping zone
+
+  const labels = ['합격','합격','합격','합격','합격','합격','합격','합격',
+                  '불합격','불합격','불합격','불합격','불합격','불합격','불합격','불합격',
+                  '보류','보류','보류','보류'];
+
+  const rand = (min, max, step) => {
+    const steps = Math.round((max - min) / step);
+    return +(min + Math.round(Math.random() * steps) * step).toFixed(1);
+  };
+
+  dataset.length = 0;
+  labels.forEach(label => {
+    let study, sleep;
+    if (label === '합격') {
+      study = rand(6, 10, 0.5);
+      sleep = rand(6, 10, 0.5);
+    } else if (label === '불합격') {
+      study = rand(1, 4, 0.5);
+      sleep = rand(4, 8, 0.5);
+    } else {
+      study = rand(4, 7, 0.5);
+      sleep = rand(5, 8, 0.5);
+    }
+    dataset.push({ study, sleep, label });
+  });
+
+  // shuffle order
+  for (let i = dataset.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [dataset[i], dataset[j]] = [dataset[j], dataset[i]];
+  }
+
+  genCount++;
+  document.getElementById('gen-label').textContent = `생성 ${genCount}회`;
+
+  buildTable(true);
+
+  // dice spin animation
+  const dice = document.getElementById('dice-icon');
+  dice.style.display = 'inline-block';
+  dice.style.transition = 'transform 0.4s ease';
+  dice.style.transform = 'rotate(360deg) scale(1.3)';
+  setTimeout(() => { dice.style.transform = 'rotate(0deg) scale(1)'; }, 420);
+
+  // refresh chart & reset prediction state
+  resetAll();
+  if (chartInst) {
+    chartInst.data.datasets = buildDatasets(null, null);
+    chartInst.update('active');
+  }
+}
+
+/* ─── TABS ─── */
+function showTab(t) {
+  ['data','chart'].forEach(id => {
+    document.getElementById('sec-'+id).classList.toggle('active', id===t);
+  });
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', ['data','chart'][i]===t));
+  if (t === 'chart' && !chartInst) initChart();
+}
+
+/* ─── INPUT CHANGE ─── */
+function onInputChange() {
+  currentStudy = parseFloat(document.getElementById('inp-study').value) || 5;
+  currentSleep  = parseFloat(document.getElementById('inp-sleep').value)  || 7;
+  document.getElementById('coord-display').innerHTML =
+    `<span>좌표</span>&nbsp; (${currentStudy.toFixed(1)}, ${currentSleep.toFixed(1)})`;
+}
+function onKChange(v) {
+  currentK = parseInt(v);
+  document.getElementById('k-val').textContent = v;
+  updatePredPrompt();
+}
+function updatePredPrompt() {
+  if (!newPointPlotted) return;
+  document.getElementById('pred-prompt').textContent =
+    `공부 ${currentStudy.toFixed(1)}h / 수면 ${currentSleep.toFixed(1)}h 일 때 K=${currentK} 이면 어떤 결과일까요?`;
+}
+
+/* ─── CHART INIT ─── */
+function buildDatasets(highlightSet, newPt) {
+  const groups = { '합격':[], '불합격':[], '보류':[] };
+  const highlighted = [];
+  dataset.forEach((d, i) => {
+    if (highlightSet && highlightSet.has(i)) {
+      highlighted.push({ x: d.study, y: d.sleep });
+    } else {
+      groups[d.label].push({ x: d.study, y: d.sleep });
+    }
+  });
+  const ds = [
+    { label:'합격',   data: groups['합격'],   backgroundColor: COLOR.pass, pointRadius:7, pointHoverRadius:9 },
+    { label:'불합격', data: groups['불합격'], backgroundColor: COLOR.fail, pointRadius:7, pointHoverRadius:9 },
+    { label:'보류',   data: groups['보류'],   backgroundColor: COLOR.hold, pointRadius:7, pointHoverRadius:9 },
+  ];
+  if (highlighted.length) {
+    ds.push({
+      label:'K이웃', data: highlighted,
+      backgroundColor: COLOR.nb, pointBorderColor:'#ea580c', pointBorderWidth:2,
+      pointRadius:11, pointHoverRadius:13
+    });
+  }
+  if (newPt) {
+    ds.push({
+      label:'새데이터', data:[newPt],
+      backgroundColor: COLOR.new, pointBorderColor:'#fff', pointBorderWidth:2,
+      pointStyle:'rectRot', pointRadius:11, pointHoverRadius:13
+    });
+  }
+  return ds;
+}
+
+function chartOptions() {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 400 },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: item => {
+            const lbl = item.dataset.label;
+            if (lbl === '새데이터') return `새 데이터 (${item.raw.x}h, ${item.raw.y}h)`;
+            if (lbl === 'K이웃')    return `K 이웃 (${item.raw.x}h, ${item.raw.y}h)`;
+            return `${lbl}: 공부 ${item.raw.x}h, 수면 ${item.raw.y}h`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: { display:true, text:'공부 시간 (h)', color:'#6b7280' },
+        min:0, max:11,
+        ticks: { color:'#6b7280' },
+        grid: { color:'rgba(255,255,255,0.05)' }
+      },
+      y: {
+        title: { display:true, text:'수면 시간 (h)', color:'#6b7280' },
+        min:3, max:11,
+        ticks: { color:'#6b7280' },
+        grid: { color:'rgba(255,255,255,0.05)' }
+      }
+    }
+  };
+}
+
+function initChart() {
+  chartInst = new Chart(document.getElementById('mainChart'), {
+    type: 'scatter',
+    data: { datasets: buildDatasets(null, null) },
+    options: chartOptions()
+  });
+}
+
+/* ─── PLOT NEW POINT ─── */
+function plotNewPoint() {
+  onInputChange();
+  if (!chartInst) initChart();
+
+  // reset any previous knn highlight
+  neighborsIdx = [];
+  selectedPred = null;
+  document.getElementById('result-area').classList.remove('show');
+  document.querySelectorAll('.pred-btn').forEach(b => b.className = 'pred-btn');
+
+  chartInst.data.datasets = buildDatasets(null, { x: currentStudy, y: currentSleep });
+  chartInst.update();
+  newPointPlotted = true;
+
+  // show legend & predict row
+  document.getElementById('leg-new').style.display = 'flex';
+  document.getElementById('leg-nb').style.display  = 'none';
+  document.getElementById('predict-row').classList.add('show');
+  updatePredPrompt();
+
+  document.getElementById('predict-row').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+/* ─── SELECT PREDICTION ─── */
+function selectPred(p) {
+  selectedPred = p;
+  document.getElementById('pb-pass').className = 'pred-btn' + (p==='합격'  ? ' sel-pass' : '');
+  document.getElementById('pb-fail').className = 'pred-btn' + (p==='불합격'? ' sel-fail' : '');
+  document.getElementById('pb-hold').className = 'pred-btn' + (p==='보류'  ? ' sel-hold' : '');
+}
+
+/* ─── EUCLIDEAN ─── */
+function dist(a, b) { return Math.sqrt((a.study-b.study)**2 + (a.sleep-b.sleep)**2); }
+
+/* ─── RUN KNN ─── */
+function runKNN() {
+  if (!newPointPlotted) { alert('먼저 산점도에 새 데이터를 찍어주세요!'); return; }
+
+  const k = Math.max(1, Math.min(currentK, dataset.length));
+  const newPt = { study: currentStudy, sleep: currentSleep };
+
+  const sorted = dataset.map((d,i) => ({ ...d, i, d: dist(newPt, d) })).sort((a,b) => a.d - b.d);
+  const neighbors = sorted.slice(0, k);
+  neighborsIdx = new Set(neighbors.map(n => n.i));
+
+  const votes = { '합격':0, '불합격':0, '보류':0 };
+  neighbors.forEach(n => votes[n.label]++);
+  const prediction = Object.entries(votes).sort((a,b) => b[1]-a[1])[0][0];
+
+  // update chart
+  chartInst.data.datasets = buildDatasets(neighborsIdx, { x: currentStudy, y: currentSleep });
+  chartInst.update();
+  document.getElementById('leg-nb').style.display = 'flex';
+
+  // result card
+  const emoji = { '합격':'✅', '불합격':'❌', '보류':'⏸' };
+  document.getElementById('res-title').innerHTML =
+    `K-NN 예측 결과: <span style="color:${LABEL_COLOR[prediction]}">${emoji[prediction]} ${prediction}</span>`;
+
+  document.getElementById('score-row').innerHTML =
+    `<div class="score-item">합격 <span style="color:${COLOR.pass}">${votes['합격']}표</span></div>
+     <div class="score-item">불합격 <span style="color:${COLOR.fail}">${votes['불합격']}표</span></div>
+     <div class="score-item">보류 <span style="color:${COLOR.hold}">${votes['보류']}표</span></div>`;
+
+  document.getElementById('nn-list').innerHTML =
+    '<strong style="color:#fff">가장 가까운 ' + k + '개 이웃:</strong><br>' +
+    neighbors.map((n,i) =>
+      `이웃 ${i+1}: 공부 ${n.study}h, 수면 ${n.sleep}h → <span style="color:${LABEL_COLOR[n.label]};font-weight:600">${n.label}</span> (거리 ${n.d.toFixed(2)})`
+    ).join('<br>');
+
+  let verdictHTML = '';
+  if (selectedPred) {
+    const ok = selectedPred === prediction;
+    verdictHTML = `내 예측 <strong>${selectedPred}</strong> → <span class="${ok?'correct':'wrong'}">${ok?'✓ 정답입니다!':'✗ 틀렸습니다. 다시 생각해보세요!'}</span>`;
+  } else {
+    verdictHTML = '<span class="no-pred">예측을 선택하지 않았습니다.</span>';
+  }
+  document.getElementById('verdict').innerHTML = verdictHTML;
+
+  const card = document.getElementById('result-card');
+  card.style.borderLeftColor = LABEL_COLOR[prediction];
+  document.getElementById('result-area').classList.add('show');
+}
+
+/* ─── RESET ─── */
+function resetAll() {
+  selectedPred = null;
+  newPointPlotted = false;
+  neighborsIdx = [];
+  document.querySelectorAll('.pred-btn').forEach(b => b.className = 'pred-btn');
+  document.getElementById('result-area').classList.remove('show');
+  document.getElementById('predict-row').classList.remove('show');
+  document.getElementById('leg-new').style.display = 'none';
+  document.getElementById('leg-nb').style.display  = 'none';
+  if (chartInst) {
+    chartInst.data.datasets = buildDatasets(null, null);
+    chartInst.update();
+  }
+}
+</script>
+</body>
+</html>
