@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="포트폴리오 홈 화면 - 다양한 프로젝트를 둘러보세요">
-    <title>홈 | My Portfolio</title>
+    <meta name="description" content="포트폴리오 홈 화면 - 프로젝트를 둘러보세요">
+    <title>Portfolio | Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,123 +15,489 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #13131a;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover-border: rgba(139, 92, 246, 0.5);
+            --text-primary: #f5f5f7;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.4);
+            --gradient-1: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            --gradient-2: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --gradient-3: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            --gradient-4: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", sans-serif;
-            background: #f5f7fa;
-            color: #1a202c;
+            font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            overflow-x: hidden;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* 배경 그라데이션 오브 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -20%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* 노이즈 텍스처 오버레이 */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            z-index: 1;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
         .container {
-            max-width: 800px;
-            width: 100%;
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 48px 32px;
-            border: 1px solid #e2e8f0;
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 32px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 헤더 영역 */
+        .header {
+            margin-bottom: 64px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #c4b5fd;
+            margin-bottom: 24px;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
         }
 
         h1 {
-            font-size: clamp(1.5rem, 4vw, 2.25rem);
-            margin-bottom: 12px;
-            color: #1a202c;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 .accent-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .subtitle {
-            font-size: 1rem;
-            color: #4a5568;
-            margin-bottom: 32px;
+            font-size: clamp(1rem, 1.5vw, 1.125rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            font-weight: 400;
         }
 
+        /* 카드 그리드 */
         .button-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .nav-button {
+            position: relative;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            padding: 20px;
-            background: #ffffff;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            justify-content: space-between;
+            min-height: 200px;
+            padding: 28px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
             text-decoration: none;
-            color: #1a202c;
-            transition: border-color 0.2s, transform 0.2s;
+            color: var(--text-primary);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
         }
 
-        .nav-button:hover,
-        .nav-button:focus {
-            border-color: #2563eb;
-            transform: translateY(-2px);
-            outline: none;
+        /* 카드 호버 시 빛나는 효과 */
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        /* 카드별 색상 액센트 (왼쪽 상단 원형 그라데이션) */
+        .nav-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            opacity: 0;
+            filter: blur(40px);
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .nav-button:nth-child(1)::after { background: var(--gradient-1); }
+        .nav-button:nth-child(2)::after { background: var(--gradient-2); }
+        .nav-button:nth-child(3)::after { background: var(--gradient-3); }
+        .nav-button:nth-child(4)::after { background: var(--gradient-4); }
+
+        .nav-button:hover {
+            transform: translateY(-6px);
+            border-color: var(--card-hover-border);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-button:hover::before {
+            opacity: 1;
+        }
+
+        .nav-button:hover::after {
+            opacity: 0.25;
         }
 
         .nav-button:focus-visible {
-            outline: 2px solid #2563eb;
-            outline-offset: 2px;
+            outline: 2px solid var(--accent);
+            outline-offset: 4px;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-number {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .card-arrow {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-button:hover .card-arrow {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: rotate(-45deg);
+        }
+
+        .card-arrow svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            transition: transform 0.3s;
+        }
+
+        .card-bottom {
+            position: relative;
+            z-index: 1;
         }
 
         .button-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 6px;
+            display: block;
+            font-size: 1.375rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+            transition: transform 0.3s;
+        }
+
+        .nav-button:hover .button-title {
+            transform: translateX(4px);
         }
 
         .button-desc {
+            display: block;
             font-size: 0.875rem;
-            color: #6b7280;
+            color: var(--text-secondary);
+            font-weight: 400;
+            line-height: 1.5;
         }
 
-        @media (max-width: 480px) {
+        .tag {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* 푸터 */
+        .footer {
+            margin-top: 64px;
+            padding-top: 24px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* 반응형 */
+        @media (max-width: 640px) {
             .container {
-                padding: 32px 20px;
+                padding: 40px 20px;
+            }
+            .header {
+                margin-bottom: 40px;
             }
             .button-grid {
                 grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .nav-button {
+                min-height: 160px;
+                padding: 22px;
+            }
+            .card-top {
+                margin-bottom: 28px;
+            }
+            .footer {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+                margin-top: 40px;
+            }
+        }
+
+        /* 모션 감소 선호 사용자 대응 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 <body>
+    <div class="noise"></div>
+    
     <main class="container">
-        <h1>프로젝트 모음</h1>
-        <p class="subtitle">버튼을 클릭하면 해당 페이지로 이동합니다.</p>
+        <header class="header">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                <span>Welcome to my portfolio</span>
+            </div>
+            <h1>
+                Explore my<br>
+                <span class="accent-text">projects & works</span>
+            </h1>
+            <p class="subtitle">
+                관심 있는 프로젝트를 선택해 자세히 살펴보세요.
+                각 카드를 클릭하면 해당 페이지로 이동합니다.
+            </p>
+        </header>
 
         <nav class="button-grid" aria-label="페이지 이동 메뉴">
-            <!-- 같은 저장소 내 페이지로 이동 -->
-            <a href="LinearRegression.html" class="nav-button">
-                <span class="button-title">프로젝트 1</span>
-                <span class="button-desc">내부 페이지로 이동</span>
+            <a href="page1.html" class="nav-button">
+                <div class="card-top">
+                    <span class="card-number">01</span>
+                    <span class="card-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </span>
+                </div>
+                <div class="card-bottom">
+                    <span class="button-title">Project One</span>
+                    <span class="button-desc">첫 번째 프로젝트의 상세 페이지로 이동합니다.</span>
+                    <span class="tag">Internal</span>
+                </div>
             </a>
 
-            <a href="KNN.html" class="nav-button">
-                <span class="button-title">프로젝트 2</span>
-                <span class="button-desc">내부 페이지로 이동</span>
+            <a href="page2.html" class="nav-button">
+                <div class="card-top">
+                    <span class="card-number">02</span>
+                    <span class="card-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </span>
+                </div>
+                <div class="card-bottom">
+                    <span class="button-title">Project Two</span>
+                    <span class="button-desc">두 번째 프로젝트 페이지로 연결됩니다.</span>
+                    <span class="tag">Internal</span>
+                </div>
             </a>
 
-            <!-- 하위 폴더 내 페이지로 이동 -->
             <a href="projects/demo.html" class="nav-button">
-                <span class="button-title">데모 페이지</span>
-                <span class="button-desc">하위 폴더 페이지</span>
+                <div class="card-top">
+                    <span class="card-number">03</span>
+                    <span class="card-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </span>
+                </div>
+                <div class="card-bottom">
+                    <span class="button-title">Live Demo</span>
+                    <span class="button-desc">하위 폴더 내의 데모 페이지를 확인해보세요.</span>
+                    <span class="tag">Demo</span>
+                </div>
             </a>
 
-            <!-- 외부 GitHub Pages 사이트로 이동 -->
-            <a href="https://username.github.io/other-repo/" 
-               class="nav-button" 
-               target="_blank" 
-               rel="noopener noreferrer">
-                <span class="button-title">외부 사이트</span>
-                <span class="button-desc">새 탭에서 열기</span>
+            <a href="https://github.com" class="nav-button" target="_blank" rel="noopener noreferrer">
+                <div class="card-top">
+                    <span class="card-number">04</span>
+                    <span class="card-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="7" y1="17" x2="17" y2="7"></line>
+                            <polyline points="7 7 17 7 17 17"></polyline>
+                        </svg>
+                    </span>
+                </div>
+                <div class="card-bottom">
+                    <span class="button-title">GitHub</span>
+                    <span class="button-desc">외부 사이트로 새 탭에서 열립니다.</span>
+                    <span class="tag">External</span>
+                </div>
             </a>
         </nav>
+
+        <footer class="footer">
+            <div>© 2026 Your Name. All rights reserved.</div>
+            <div class="footer-links">
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+        </footer>
     </main>
 </body>
 </html>
