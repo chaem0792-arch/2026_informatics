@@ -104,12 +104,12 @@
 
         <nav class="button-grid" aria-label="페이지 이동 메뉴">
             <!-- 같은 저장소 내 페이지로 이동 -->
-            <a href="page1.html" class="nav-button">
+            <a href="LinearRegression.html" class="nav-button">
                 <span class="button-title">프로젝트 1</span>
                 <span class="button-desc">내부 페이지로 이동</span>
             </a>
 
-            <a href="page2.html" class="nav-button">
+            <a href="KNN.html" class="nav-button">
                 <span class="button-title">프로젝트 2</span>
                 <span class="button-desc">내부 페이지로 이동</span>
             </a>
