@@ -434,6 +434,37 @@
   }
   .chip.selected-x { background: rgba(124,92,191,0.25); border-color: var(--accent); color: #b99ef5; }
   .chip.selected-y { background: rgba(224,92,138,0.25); border-color: var(--accent2); color: #f5a0bf; }
+
+  /* STEP 2 LAYOUT */
+  .step2-layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media(max-width: 820px) {
+    .step2-layout {
+      grid-template-columns: 1fr;
+    }
+    .step2-right {
+      order: -1;
+    }
+  }
+  .step2-table-scroll {
+    max-height: 520px;
+    overflow-y: auto;
+  }
+  /* 선택된 열 헤더 강조 */
+  .col-highlight th {
+    background: rgba(124,92,191,0.25) !important;
+    color: #b99ef5 !important;
+  }
+  .col-highlight td {
+    background: rgba(124,92,191,0.1) !important;
+    font-weight: bold;
+    color: #d0c0ff !important;
+  }
+
 </style>
 </head>
 <body>
@@ -532,38 +563,66 @@
     <p>어떤 속성을 이용해서 무엇을 예측할지 정해볼게요. 선택에 따라 AI 성능이 달라진답니다!</p>
   </div>
 
-  <div class="info-box">
-    <strong>독립 변수(X)</strong>: AI에게 알려줄 입력 정보예요.<br>
-    <strong>레이블(Y)</strong>: AI가 예측해야 할 정답이에요. 여기서는 <strong>시험점수</strong>를 예측해요.<br>
-    독립 변수를 어떻게 고르느냐에 따라 AI의 예측 성능이 달라지는 걸 확인해 보세요!
-  </div>
+  <div class="step2-layout">
+    <!-- 왼쪽: 변수 선택 -->
+    <div class="step2-left">
+      <div class="info-box">
+        <strong>독립 변수(X)</strong>: AI에게 알려줄 입력 정보예요.<br>
+        <strong>레이블(Y)</strong>: AI가 예측해야 할 정답이에요. 여기서는 <strong>시험점수</strong>를 예측해요.<br>
+        독립 변수를 어떻게 고르느냐에 따라 AI의 예측 성능이 달라지는 걸 확인해 보세요!
+      </div>
 
-  <div class="card">
-    <div class="card-title"><div class="icon" style="background:rgba(62,207,178,0.2)">🔧</div> 변수 설정</div>
+      <div class="card">
+        <div class="card-title"><div class="icon" style="background:rgba(62,207,178,0.2)">🔧</div> 변수 설정</div>
 
-    <div style="margin-bottom:20px">
-      <label class="form-label">📌 독립 변수 (X) 선택 — <span style="color:var(--accent)">하나만 선택</span></label>
-      <div class="chips" id="xChips">
-        <div class="chip" onclick="selectX('공부시간')" id="chip_공부시간">⏰ 공부시간</div>
-        <div class="chip" onclick="selectX('수면시간')" id="chip_수면시간">😴 수면시간</div>
-        <div class="chip" onclick="selectX('결석횟수')" id="chip_결석횟수">🚫 결석횟수</div>
-        <div class="chip" onclick="selectX('독서량')" id="chip_독서량">📚 독서량</div>
-        <div class="chip" onclick="selectX('운동횟수')" id="chip_운동횟수">🏃 운동횟수</div>
+        <div style="margin-bottom:20px">
+          <label class="form-label">📌 독립 변수 (X) 선택 — <span style="color:var(--accent)">하나만 선택</span></label>
+          <div class="chips" id="xChips">
+            <div class="chip" onclick="selectX('공부시간')" id="chip_공부시간">⏰ 공부시간</div>
+            <div class="chip" onclick="selectX('수면시간')" id="chip_수면시간">😴 수면시간</div>
+            <div class="chip" onclick="selectX('결석횟수')" id="chip_결석횟수">🚫 결석횟수</div>
+            <div class="chip" onclick="selectX('독서량')" id="chip_독서량">📚 독서량</div>
+            <div class="chip" onclick="selectX('운동횟수')" id="chip_운동횟수">🏃 운동횟수</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <label class="form-label">🎯 레이블 (Y) — 고정</label>
+          <div class="chips">
+            <div class="chip selected-y">📝 시험점수 (고정)</div>
+          </div>
+        </div>
+
+        <div id="xSelected" class="success-box" style="display:none"></div>
+
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="goTo(0)">← 이전</button>
+          <button class="btn btn-primary" id="btnExtract" onclick="goTo(2)" disabled>다음 단계 → 데이터 추출</button>
+        </div>
       </div>
     </div>
 
-    <div style="margin-bottom:20px">
-      <label class="form-label">🎯 레이블 (Y) — 고정</label>
-      <div class="chips">
-        <div class="chip selected-y">📝 시험점수 (고정)</div>
+    <!-- 오른쪽: 데이터 표 -->
+    <div class="step2-right">
+      <div class="card" style="height:100%">
+        <div class="card-title"><div class="icon" style="background:rgba(124,92,191,0.2)">📋</div> 데이터셋 참고</div>
+        <div class="table-wrapper step2-table-scroll">
+          <table id="step2RefTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th id="s2h_공부시간">⏰ 공부시간</th>
+                <th id="s2h_수면시간">😴 수면시간</th>
+                <th id="s2h_결석횟수">🚫 결석횟수</th>
+                <th id="s2h_독서량">📚 독서량</th>
+                <th id="s2h_운동횟수">🏃 운동횟수</th>
+                <th>📝 시험점수</th>
+              </tr>
+            </thead>
+            <tbody id="step2RefTableBody"></tbody>
+          </table>
+        </div>
       </div>
-    </div>
-
-    <div id="xSelected" class="success-box" style="display:none"></div>
-
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="goTo(0)">← 이전</button>
-      <button class="btn btn-primary" id="btnExtract" onclick="goTo(2)" disabled>다음 단계 → 데이터 추출</button>
     </div>
   </div>
 </div>
@@ -819,6 +878,37 @@ function init() {
   renderFullTable();
 }
 
+
+function renderStep2RefTable(highlightCol) {
+  const tbody = document.getElementById('step2RefTableBody');
+  const cols = ['공부시간','수면시간','결석횟수','독서량','운동횟수'];
+  
+  // 헤더 강조 초기화
+  cols.forEach(col => {
+    const th = document.getElementById('s2h_' + col);
+    if (th) th.style.cssText = '';
+  });
+  if (highlightCol) {
+    const th = document.getElementById('s2h_' + highlightCol);
+    if (th) {
+      th.style.background = 'rgba(124,92,191,0.35)';
+      th.style.color = '#c8aaff';
+    }
+  }
+
+  tbody.innerHTML = RAW_DATA.map(r => {
+    const cells = cols.map(col => {
+      const isHL = col === highlightCol;
+      return `<td${isHL ? ' style="background:rgba(124,92,191,0.12);font-weight:bold;color:#c8aaff"' : ''}>${r[col]}</td>`;
+    });
+    return `<tr>
+      <td>${r.id}</td>
+      ${cells.join('')}
+      <td><span class="badge badge-teal">${r.시험점수}</span></td>
+    </tr>`;
+  }).join('');
+}
+
 function renderFullTable() {
   const tbody = document.getElementById('fullTableBody');
   tbody.innerHTML = RAW_DATA.map(r => `
@@ -866,6 +956,7 @@ function goTo(step) {
   window.scrollTo({top: 0, behavior: 'smooth'});
 
   // trigger renders
+  if (step === 1) renderStep2RefTable(selectedX);
   if (step === 2) renderExtractedTable();
   if (step === 4) renderScatterChart();
   if (step === 5) renderRegressionBase();
@@ -881,6 +972,7 @@ function selectX(col) {
   });
   document.getElementById('chip_' + col).classList.add('selected-x');
   document.getElementById('xSelected').style.display = 'block';
+  renderStep2RefTable(col);
   document.getElementById('xSelected').innerHTML = `✅ <strong>${col}</strong> 을(를) 독립 변수로 선택했어요!`;
   document.getElementById('btnExtract').disabled = false;
   regressionDone = false;
