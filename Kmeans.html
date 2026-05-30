@@ -142,4 +142,1125 @@
   tbody tr:hover { background: var(--surface2); }
   tbody td { padding: 9px 14px; vertical-align: middle; }
   .td-name { font-weight: 600; color: var(--text); }
-  .td-val { font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  .td-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+  .mini-bar-wrap { display: flex; align-items: center; gap: 6px; }
+  .mini-bar-bg {
+    width: 60px; height: 5px; background: var(--border);
+    border-radius: 3px; overflow: hidden;
+  }
+  .mini-bar-fill { height: 100%; border-radius: 3px; }
+  .td-cluster-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .table-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+  .table-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* 탭 2 */
+  .kmeans-layout { display: flex; flex: 1; overflow: hidden; }
+  .sidebar {
+    width: 280px; min-width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .panel { border-bottom: 1px solid var(--border); padding: 18px; }
+  .panel-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+    color: var(--text-muted); text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+  }
+  .step-badge {
+    background: var(--accent); color: #000; border-radius: 50%;
+    width: 18px; height: 18px; display: inline-flex; align-items: center;
+    justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+  .k-control { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .k-display { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:600; color:var(--accent); width:44px; text-align:center; }
+  .k-slider {
+    flex: 1; -webkit-appearance: none; height: 4px;
+    border-radius: 2px; background: var(--border); outline: none;
+  }
+  .k-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--accent); cursor: pointer;
+  }
+  .k-hint { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .centroid-list { display: flex; flex-direction: column; gap: 6px; }
+  .centroid-item {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border-radius: 6px; padding: 7px 10px;
+    font-size: 12px; font-family:'JetBrains Mono',monospace;
+    opacity: 0.4; transition: opacity 0.2s;
+  }
+  .centroid-item.set { opacity: 1; }
+  .centroid-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .centroid-coords { color: var(--text-muted); font-size: 11px; }
+
+  .btn {
+    width: 100%; padding: 9px 14px; border-radius: 8px; border: none;
+    cursor: pointer; font-family:'Noto Sans KR',sans-serif;
+    font-size: 13px; font-weight: 500; transition: all 0.15s; margin-top: 7px;
+  }
+  .btn-success { background: var(--accent2); color: #000; }
+  .btn-success:hover { background: #4fc462; }
+  .btn-success:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+  .btn-pause { background: var(--accent3); color: #000; }
+  .btn-pause:hover { background: #f8a050; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); margin-top: 4px; }
+  .btn-danger:hover { background: rgba(248,81,73,0.1); }
+  .speed-control { display: flex; gap: 6px; }
+  .speed-btn {
+    flex: 1; padding: 5px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text-muted); cursor: pointer; font-size: 11px; text-align: center; transition: all 0.15s;
+  }
+  .speed-btn.active { background: rgba(88,166,255,0.12); border-color: var(--accent); color: var(--accent); }
+
+  .canvas-area {
+    flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 14px; overflow: hidden;
+  }
+  .canvas-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .status-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 12px; font-size: 13px;
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: background 0.3s; }
+  .status-dot.active { background: var(--accent2); animation: pulse 1.2s infinite; }
+  .status-dot.done { background: var(--accent2); }
+  .status-dot.waiting { background: var(--accent3); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  #statusText { color: var(--text-muted); font-size: 13px; }
+  .iteration-badge {
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 3px 8px; color: var(--accent);
+  }
+
+  .canvas-wrapper {
+    position: relative; flex: 1; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 12px; overflow: hidden; min-height: 0;
+  }
+  canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+  .canvas-hint {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%); text-align: center;
+    pointer-events: none; transition: opacity 0.3s;
+  }
+  .canvas-hint .hint-icon { font-size: 40px; margin-bottom: 10px; }
+  .canvas-hint p { color: var(--text-muted); font-size: 14px; }
+
+  .log-panel { max-height: 120px; overflow-y: auto; }
+  .log-entry {
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    padding: 3px 0; border-bottom: 1px solid rgba(48,54,61,0.5);
+    color: var(--text-muted); display: flex; gap: 8px;
+  }
+  .log-entry .log-iter { color: var(--accent); min-width: 52px; }
+  .log-entry.log-final { color: var(--accent2); }
+  .log-entry.log-final .log-iter { color: var(--accent2); }
+  .log-panel::-webkit-scrollbar { width: 4px; }
+  .log-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* 탭 3 */
+  .recommend-layout {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden; padding: 24px; gap: 20px;
+  }
+  .recommend-notice {
+    background: rgba(240,136,62,0.1);
+    border: 1px solid rgba(240,136,62,0.3);
+    border-radius: 10px; padding: 14px 18px;
+    font-size: 13px; color: var(--accent3);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .recommend-notice.done {
+    background: rgba(63,185,80,0.08);
+    border-color: rgba(63,185,80,0.3);
+    color: var(--accent2);
+  }
+  .clusters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px; overflow-y: auto;
+  }
+  .cluster-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .cluster-card-header {
+    padding: 14px 16px 10px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cluster-color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .cluster-card-title { font-size: 14px; font-weight: 700; }
+  .cluster-card-count { font-size: 12px; color: var(--text-muted); margin-left: auto; font-family:'JetBrains Mono',monospace; }
+  .cluster-card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .cluster-stat-row { display: flex; flex-direction: column; gap: 3px; }
+  .cluster-stat-label { font-size: 11px; color: var(--text-muted); }
+  .cluster-stat-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .cluster-stat-bar-bg {
+    flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .cluster-stat-bar-fill { height: 100%; border-radius: 3px; }
+  .cluster-stat-val { font-family:'JetBrains Mono',monospace; font-size: 12px; font-weight: 600; width: 36px; text-align: right; }
+  .cluster-char-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+  .char-tag {
+    font-size: 11px; padding: 3px 9px;
+    border-radius: 12px; border: 1px solid;
+  }
+
+  .user-recommend-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 20px; flex-shrink: 0;
+  }
+  .user-rec-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .user-select-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .user-select {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px; padding: 8px 12px; border-radius: 8px;
+    cursor: pointer; min-width: 180px;
+  }
+  .user-select:focus { outline: none; border-color: var(--accent); }
+  .user-profile-card {
+    flex: 1; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; display: none;
+  }
+  .user-profile-card.visible { display: block; }
+  .user-profile-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .user-profile-attrs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .user-attr-pill {
+    font-size: 11px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 9px; display: flex; align-items: center; gap: 5px;
+  }
+  .user-attr-pill span { color: var(--text-muted); }
+  .user-attr-pill strong { color: var(--text); }
+  .recommend-box {
+    margin-top: 14px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; display: none;
+  }
+  .recommend-box.visible { display: block; }
+  .recommend-box-title { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600; }
+  .recommend-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .recommend-item {
+    font-size: 12px; padding: 6px 12px;
+    border-radius: 8px; border: 1px solid;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .think-prompt {
+    margin-top: 12px;
+    background: rgba(88,166,255,0.07);
+    border: 1px solid rgba(88,166,255,0.2);
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 13px; color: var(--text-muted);
+    line-height: 1.6; display: none;
+  }
+  .think-prompt.visible { display: block; }
+  .think-prompt strong { color: var(--accent); }
+
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 18px; font-size: 13px;
+    color: var(--text); opacity: 0; transition: all 0.25s;
+    pointer-events: none; z-index: 100; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">K-Means</div>
+  <div class="subtitle">영화 추천 시스템 — 군집화 알고리즘 학습</div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('explore', event)">
+    <span>📊</span> 데이터 탐색 <span class="tab-num">1</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('kmeans', event)">
+    <span>⚙️</span> K-Means 실습 <span class="tab-num">2</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('recommend', event)">
+    <span>🎬</span> 추천 결과 <span class="tab-num">3</span>
+  </button>
+</nav>
+
+<!-- 탭 1 -->
+<div class="tab-content active" id="tab-explore">
+  <div class="explore-layout">
+
+    <div class="dataset-intro">
+      영화 스트리밍 서비스의 사용자 데이터입니다.
+      총 <strong>60명</strong>의 사용자에게 <strong>5가지 속성</strong>이 기록되어 있습니다.
+      각 행이 한 명의 사용자이며, 속성 값을 살펴보면서 사용자들 사이의 유사성을 직관적으로 파악해 보세요.
+    </div>
+
+    <div class="table-header-row">
+      <div>
+        <div class="table-title">👥 사용자 데이터</div>
+        <div class="table-subtitle">각 행은 한 명의 사용자입니다.</div>
+      </div>
+      <div class="user-count-badge">60명</div>
+    </div>
+    <div class="table-wrap">
+      <table id="userTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- 탭 2 -->
+<div class="tab-content" id="tab-kmeans">
+  <div class="kmeans-layout">
+
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="panel-title"><span class="step-badge">1</span> K 값 설정</div>
+        <div class="k-control">
+          <div class="k-display" id="kDisplay">3</div>
+          <input type="range" class="k-slider" min="2" max="6" value="3" id="kSlider" oninput="onKChange(this.value)">
+        </div>
+        <div class="k-hint">K = <strong id="kVal">3</strong>개의 군집으로 분류합니다.</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="step-badge">2</span> 초기 중심점 선택</div>
+        <div class="centroid-list" id="centroidList"></div>
+        <button class="btn btn-outline" onclick="resetCentroids()" style="margin-top:10px">↺ 중심점 초기화</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="step-badge">3</span> 알고리즘 실행</div>
+        <div style="margin-bottom:10px">
+          <div class="panel-title" style="margin-bottom:6px">애니메이션 속도</div>
+          <div class="speed-control">
+            <div class="speed-btn" onclick="setSpeed(1200,this)">느리게</div>
+            <div class="speed-btn active" onclick="setSpeed(700,this)">보통</div>
+            <div class="speed-btn" onclick="setSpeed(300,this)">빠르게</div>
+          </div>
+        </div>
+        <button class="btn btn-success" id="runBtn" onclick="runKMeans()" disabled>▶ 알고리즘 실행</button>
+        <button class="btn btn-outline" id="stepBtn" onclick="stepKMeans()" disabled>한 단계씩 실행</button>
+        <button class="btn btn-danger" onclick="fullReset()">⟳ 전체 초기화</button>
+      </div>
+
+      <div class="panel" style="flex:1">
+        <div class="panel-title">실행 로그</div>
+        <div class="log-panel" id="logPanel">
+          <div class="log-entry"><span class="log-iter">준비</span><span>데이터 60명 로드 완료</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="canvas-area">
+      <div class="canvas-header">
+        <div class="status-bar">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">데이터 포인트를 클릭해 초기 중심점을 선택하세요</span>
+        </div>
+        <div class="iteration-badge">반복: <span id="iterCount">0</span></div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="mainCanvas"></canvas>
+        <div class="canvas-hint" id="canvasHint">
+          <div class="hint-icon">🖱️</div>
+          <p id="canvasHintText">데이터 포인트를 클릭하여<br>초기 중심점을 선택하세요</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 탭 3 -->
+<div class="tab-content" id="tab-recommend">
+  <div class="recommend-layout">
+
+    <div class="recommend-notice" id="recommendNotice">
+      ⚠️ 먼저 탭 2에서 K-Means 알고리즘을 실행하고 군집화를 완료하세요.
+    </div>
+
+    <div class="clusters-grid" id="clustersGrid"></div>
+
+    <div class="user-recommend-section" id="userRecommendSection" style="display:none">
+      <div class="user-rec-title">🎯 사용자 선택 후 추천 생각해보기</div>
+      <div class="user-select-row">
+        <select class="user-select" id="userSelect" onchange="onUserSelect(this.value)">
+          <option value="">— 사용자를 선택하세요 —</option>
+        </select>
+        <div class="user-profile-card" id="userProfileCard"></div>
+      </div>
+      <div class="recommend-box" id="recommendBox"></div>
+      <div class="think-prompt" id="thinkPrompt"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// 속성 정의 (나이를 학습 속성으로 추가)
+// ══════════════════════════════════════════
+const ATTRIBUTES = [
+  { id: 'age',       name: '나이',                icon: '🎂', unit: '세',   min: 10, max: 60,  color: '#ff7b72' },
+  { id: 'action',    name: '액션/장르 선호도',    icon: '🎬', unit: '점',   min: 0,  max: 100, color: '#58a6ff' },
+  { id: 'emotional', name: '감성 콘텐츠 선호도',  icon: '💛', unit: '점',   min: 0,  max: 100, color: '#f0883e' },
+  { id: 'frequency', name: '주간 시청 횟수',      icon: '📅', unit: '편/주', min: 0,  max: 20,  color: '#3fb950' },
+  { id: 'rating',    name: '평균 평점',           icon: '⭐', unit: '점',   min: 1,  max: 5,   color: '#bc8cff' }
+];
+
+// 산점도용 내부 축 (학생에게 노출되지 않음)
+const X_ATTR = 'action';
+const Y_ATTR = 'emotional';
+
+// ══════════════════════════════════════════
+// 사용자 데이터 생성
+// ══════════════════════════════════════════
+function seededRand(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
+const NAMES = [
+  '김민준','이서연','박지호','최수아','정도윤','강예린','윤태양','임하은','한준서','오나은',
+  '서민재','신유진','조현우','권지수','장승현','류아름','남도현','백채원','구성민','문소희',
+  '안태준','허지영','송영빈','전미래','홍찬혁','노선아','진현수','엄다솜','양준호','배수현',
+  '이도훈','김유나','박성진','최아린','정우석','강민서','윤소율','임준혁','한채영','오민준',
+  '서지원','신태현','조아연','권민호','장예진','류성원','남지은','백현준','구아영','문태민',
+  '안소현','허준영','송다연','전성호','홍미래','노현준','진아영','엄태호','양소연','배도현'
+];
+
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+function generateUsers() {
+  const rand = seededRand(42);
+  const users = [];
+  // 군집 1: 액션 마니아 — 비교적 젊은 층 (15~28세)
+  for(let i=0;i<20;i++){
+    users.push({
+      age: Math.round(clamp(rand()*13+15, 10, 60)),
+      action: Math.round(clamp(rand()*25+68, 0, 100)),
+      emotional: Math.round(clamp(rand()*30+15, 0, 100)),
+      frequency: Math.round(clamp(rand()*6+9, 0, 20)*10)/10,
+      rating: Math.round(clamp(rand()*1.0+2.2, 1, 5)*10)/10
+    });
+  }
+  // 군집 2: 감성파 — 중간/장년층 (28~50세)
+  for(let i=0;i<20;i++){
+    users.push({
+      age: Math.round(clamp(rand()*22+28, 10, 60)),
+      action: Math.round(clamp(rand()*30+10, 0, 100)),
+      emotional: Math.round(clamp(rand()*25+65, 0, 100)),
+      frequency: Math.round(clamp(rand()*5+3, 0, 20)*10)/10,
+      rating: Math.round(clamp(rand()*0.8+3.8, 1, 5)*10)/10
+    });
+  }
+  // 군집 3: 라이트 유저 — 다양한 연령 (18~55세)
+  for(let i=0;i<20;i++){
+    users.push({
+      age: Math.round(clamp(rand()*37+18, 10, 60)),
+      action: Math.round(clamp(rand()*40+30, 0, 100)),
+      emotional: Math.round(clamp(rand()*40+25, 0, 100)),
+      frequency: Math.round(clamp(rand()*4+1, 0, 20)*10)/10,
+      rating: Math.round(clamp(rand()*1.2+2.8, 1, 5)*10)/10
+    });
+  }
+  return users.map((u,i)=>({
+    id: i,
+    name: NAMES[i],
+    ...u,
+    cluster: -1
+  }));
+}
+
+const USERS = generateUsers();
+
+// ══════════════════════════════════════════
+// 상태
+// ══════════════════════════════════════════
+const COLORS = ['#58a6ff','#3fb950','#f0883e','#bc8cff','#ff7b72','#ffa657'];
+
+let dataset = [];
+let centroids = [];
+let assignments = [];
+let k = 3;
+let animSpeed = 700;
+let iteration = 0;
+let isRunning = false;
+let isPaused = false;
+let isDone = false;
+let hoveredPointIdx = -1;
+let pauseResolve = null;
+
+function buildDataset() {
+  const xObj = ATTRIBUTES.find(a=>a.id===X_ATTR);
+  const yObj = ATTRIBUTES.find(a=>a.id===Y_ATTR);
+  dataset = USERS.map(u => ({
+    x: (u[X_ATTR]-xObj.min)/(xObj.max-xObj.min),
+    y: (u[Y_ATTR]-yObj.min)/(yObj.max-yObj.min),
+    userId: u.id
+  }));
+}
+
+// ══════════════════════════════════════════
+// 탭 전환
+// ══════════════════════════════════════════
+function switchTab(id, ev) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(ev && ev.currentTarget) ev.currentTarget.classList.add('active');
+  if(id==='kmeans') resizeCanvas();
+  if(id==='recommend') renderRecommendTab();
+}
+
+// ══════════════════════════════════════════
+// 탭 1 — 테이블
+// ══════════════════════════════════════════
+function renderTable() {
+  const thead = document.getElementById('tableHead');
+  const tbody = document.getElementById('tableBody');
+
+  let headHTML = '<tr><th>이름</th>';
+  ATTRIBUTES.forEach(a => {
+    headHTML += `<th>${a.icon} ${a.name}</th>`;
+  });
+  if(isDone) headHTML += '<th>군집</th>';
+  headHTML += '</tr>';
+  thead.innerHTML = headHTML;
+
+  tbody.innerHTML = '';
+  USERS.forEach(u => {
+    const tr = document.createElement('tr');
+    if(isDone && u.cluster >= 0) tr.style.borderLeft = `3px solid ${COLORS[u.cluster]}`;
+
+    let html = `<td class="td-name">${u.name}</td>`;
+    ATTRIBUTES.forEach(a => {
+      const val = u[a.id];
+      const norm = (val - a.min)/(a.max-a.min);
+      html += `<td class="td-val">
+        <div class="mini-bar-wrap">
+          <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${norm*100}%;background:${a.color}"></div></div>
+          ${val}${a.unit}
+        </div>
+      </td>`;
+    });
+    if(isDone && u.cluster >= 0) {
+      html += `<td><span class="td-cluster-dot" style="background:${COLORS[u.cluster]}"></span> 군집 ${u.cluster+1}</td>`;
+    }
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════════
+// 캔버스 / K-Means
+// ══════════════════════════════════════════
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const wrapper = canvas.parentElement;
+  canvas.width = wrapper.clientWidth;
+  canvas.height = wrapper.clientHeight;
+  drawAll();
+}
+
+const PAD_L = 32, PAD_R = 24, PAD_T = 24, PAD_B = 32;
+
+function toPixel(nx, ny) {
+  return [
+    PAD_L + nx*(canvas.width-PAD_L-PAD_R),
+    canvas.height-PAD_B - ny*(canvas.height-PAD_T-PAD_B)
+  ];
+}
+function fromPixel(px, py) {
+  return [
+    (px-PAD_L)/(canvas.width-PAD_L-PAD_R),
+    1-(py-(canvas.height-PAD_B))/(-(canvas.height-PAD_T-PAD_B))
+  ];
+}
+
+function nearestCentroidIdx(pt) {
+  let minD = Infinity, best = 0;
+  for(let i=0;i<centroids.length;i++){
+    const c = centroids[i];
+    const d = (pt.x-c.x)**2 + (pt.y-c.y)**2;
+    if(d<minD){ minD=d; best=i; }
+  }
+  return best;
+}
+
+function drawAll() {
+  if(!canvas.width) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.strokeStyle='rgba(48,54,61,0.6)';
+  ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){
+    const t=i/5;
+    const [x1]=toPixel(t,0), [,y1]=toPixel(0,t);
+    ctx.beginPath(); ctx.moveTo(x1,PAD_T); ctx.lineTo(x1,canvas.height-PAD_B); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD_L,y1); ctx.lineTo(canvas.width-PAD_R,y1); ctx.stroke();
+  }
+
+  if(dataset.length===0){ updateHint(); return; }
+
+  if(centroids.length>0){
+    drawVoronoi();
+  }
+
+  const centroidSrcIds = centroids.map(c=>c._srcIdx).filter(i=>i!==undefined);
+
+  dataset.forEach((pt,i)=>{
+    const [px,py]=toPixel(pt.x,pt.y);
+    const ci = centroids.length>0 ? nearestCentroidIdx(pt) : -1;
+    const isCentroid = centroidSrcIds.includes(i);
+    const isHovered = hoveredPointIdx===i && !isDone && !isRunning && centroids.length<k;
+    const color = ci>=0 ? COLORS[ci] : '#7d8590';
+
+    if(isHovered && !isCentroid){
+      ctx.beginPath(); ctx.arc(px,py,13,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5;
+      ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+    }
+    if(isCentroid) return;
+
+    ctx.beginPath(); ctx.arc(px,py,isHovered?7:5,0,Math.PI*2);
+    ctx.fillStyle=color; ctx.fill();
+    if(ci>=0){ ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.stroke(); }
+  });
+
+  centroids.forEach((c,i)=>{
+    const [px,py]=toPixel(c.x,c.y);
+    const color=COLORS[i];
+    ctx.beginPath(); ctx.arc(px,py,18,0,Math.PI*2);
+    ctx.fillStyle=color+'22'; ctx.fill();
+    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+    drawStar(px,py,10,5,color);
+    ctx.fillStyle=color;
+    ctx.font='bold 11px JetBrains Mono, monospace';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('C'+(i+1), px, py-22);
+  });
+
+  updateHint();
+}
+
+function drawStar(cx,cy,r,n,color){
+  ctx.save(); ctx.beginPath();
+  for(let i=0;i<n*2;i++){
+    const angle=(i*Math.PI/n)-Math.PI/2;
+    const radius=i%2===0?r:r*0.45;
+    const x=cx+radius*Math.cos(angle), y=cy+radius*Math.sin(angle);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+  ctx.strokeStyle='#000'; ctx.lineWidth=1; ctx.stroke();
+  ctx.restore();
+}
+
+const hexCache={};
+function parseHex(hex){
+  if(hexCache[hex]) return hexCache[hex];
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  hexCache[hex]=[r,g,b]; return [r,g,b];
+}
+
+function drawVoronoi(){
+  const idata=ctx.createImageData(canvas.width,canvas.height);
+  const step=3;
+  for(let py=PAD_T;py<canvas.height-PAD_B;py+=step){
+    for(let px=PAD_L;px<canvas.width-PAD_R;px+=step){
+      const [dx,dy]=fromPixel(px,py);
+      let minD=Infinity,bestC=0;
+      centroids.forEach((c,i)=>{ const d=(dx-c.x)**2+(dy-c.y)**2; if(d<minD){minD=d;bestC=i;} });
+      const color=parseHex(COLORS[bestC]);
+      for(let sy=0;sy<step;sy++) for(let sx=0;sx<step;sx++){
+        const idx=((py+sy)*canvas.width+(px+sx))*4;
+        idata.data[idx]=color[0]; idata.data[idx+1]=color[1];
+        idata.data[idx+2]=color[2]; idata.data[idx+3]=28;
+      }
+    }
+  }
+  ctx.putImageData(idata,0,0);
+}
+
+function assignClusters(){
+  assignments=dataset.map(pt=>nearestCentroidIdx(pt));
+  dataset.forEach((pt,i)=>{ USERS[pt.userId].cluster=assignments[i]; });
+}
+
+function moveCentroids(){
+  const newC=centroids.map((_,i)=>{
+    const pts=dataset.filter((_,j)=>assignments[j]===i);
+    if(!pts.length) return centroids[i];
+    const mx=pts.reduce((s,p)=>s+p.x,0)/pts.length;
+    const my=pts.reduce((s,p)=>s+p.y,0)/pts.length;
+    return {x:mx,y:my};
+  });
+  const moved=newC.some((c,i)=>(c.x-centroids[i].x)**2+(c.y-centroids[i].y)**2>1e-10);
+  centroids=newC;
+  return moved;
+}
+
+async function runKMeans(){
+  if(isDone) return;
+  if(isPaused){
+    isPaused=false;
+    document.getElementById('runBtn').textContent='⏸ 일시정지';
+    document.getElementById('runBtn').className='btn btn-pause';
+    setStatus('active','알고리즘 실행 중...');
+    if(pauseResolve){pauseResolve();pauseResolve=null;}
+    return;
+  }
+  if(isRunning){
+    isPaused=true;
+    document.getElementById('runBtn').textContent='▶ 계속 실행';
+    document.getElementById('runBtn').className='btn btn-success';
+    setStatus('waiting','일시정지됨');
+    addLog('일시정지','사용자가 일시정지함');
+    return;
+  }
+
+  isRunning=true; isPaused=false;
+  document.getElementById('runBtn').textContent='⏸ 일시정지';
+  document.getElementById('runBtn').className='btn btn-pause';
+  document.getElementById('runBtn').disabled=false;
+  document.getElementById('stepBtn').disabled=true;
+  setStatus('active','알고리즘 실행 중...');
+
+  let moved=true;
+  while(moved){
+    await sleepPausable(animSpeed);
+    if(isDone) return;
+    assignClusters(); drawAll();
+    addLog(`iter-${iteration+1}`,`군집 재할당 완료`);
+    await sleepPausable(animSpeed);
+    if(isDone) return;
+    moved=moveCentroids(); iteration++;
+    document.getElementById('iterCount').textContent=iteration;
+    drawAll();
+    addLog(`iter-${iteration}`,moved?`중심점 이동됨`:`변화 없음 → 수렴!`);
+    if(!moved) break;
+  }
+  if(!isDone){ onConverge(); isRunning=false; }
+}
+
+async function sleepPausable(ms){
+  await sleep(ms);
+  while(isPaused&&!isDone) await new Promise(r=>{pauseResolve=r;});
+}
+
+async function stepKMeans(){
+  if(isRunning||isDone) return;
+  document.getElementById('stepBtn').disabled=true;
+  assignClusters(); drawAll();
+  addLog('step','군집 재할당 완료');
+  await sleep(200);
+  const moved=moveCentroids(); iteration++;
+  document.getElementById('iterCount').textContent=iteration;
+  drawAll();
+  addLog(`iter-${iteration}`,moved?`중심점 이동됨`:`변화 없음 → 수렴!`);
+  if(!moved) onConverge();
+  else document.getElementById('stepBtn').disabled=false;
+}
+
+function onConverge(){
+  isDone=true; isRunning=false; isPaused=false;
+  assignClusters();
+  setStatus('done',`수렴 완료! (${iteration}번 반복)`);
+  const rb=document.getElementById('runBtn');
+  rb.disabled=true; rb.textContent='▶ 알고리즘 실행'; rb.className='btn btn-success';
+  document.getElementById('stepBtn').disabled=true;
+  renderTable();
+  showToast(`✅ 군집화 완료! 탭 3에서 추천 결과를 확인하세요.`);
+  addLog('완료',`${k}개 군집 확정 → 탭3 확인`,true);
+}
+
+canvas.addEventListener('mousemove',e=>{
+  if(isRunning||isDone||!dataset.length) return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  let minD=Infinity, nearestIdx=-1;
+  dataset.forEach((pt,i)=>{
+    const [px,py]=toPixel(pt.x,pt.y);
+    const d=Math.sqrt((px-mx)**2+(py-my)**2);
+    if(d<28&&d<minD){minD=d;nearestIdx=i;}
+  });
+  if(nearestIdx!==hoveredPointIdx){
+    hoveredPointIdx=nearestIdx;
+    canvas.style.cursor=(nearestIdx>=0&&centroids.length<k)?'pointer':'crosshair';
+    drawAll();
+  }
+});
+canvas.addEventListener('mouseleave',()=>{ hoveredPointIdx=-1; drawAll(); });
+canvas.addEventListener('click',e=>{
+  if(isRunning||isDone) return;
+  if(centroids.length>=k){ showToast(`이미 ${k}개의 중심점을 선택했습니다`); return; }
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  let minD=Infinity,nearestIdx=-1;
+  dataset.forEach((pt,i)=>{
+    const [px,py]=toPixel(pt.x,pt.y);
+    const d=Math.sqrt((px-mx)**2+(py-my)**2);
+    if(d<36&&d<minD){minD=d;nearestIdx=i;}
+  });
+  if(nearestIdx<0){ showToast('데이터 포인트 근처를 클릭하세요'); return; }
+  if(centroids.some(c=>c._srcIdx===nearestIdx)){ showToast('이미 선택된 포인트입니다'); return; }
+
+  const pt=dataset[nearestIdx];
+  centroids.push({x:pt.x,y:pt.y,_srcIdx:nearestIdx});
+  updateCentroidList();
+  if(centroids.length===k){
+    setStatus('waiting','중심점 선택 완료! 실행 버튼을 누르세요.');
+    document.getElementById('runBtn').disabled=false;
+    document.getElementById('stepBtn').disabled=false;
+    showToast(`🎯 ${k}개 중심점 선택 완료!`);
+  } else {
+    setStatus('',`${centroids.length}/${k}개 선택됨`);
+  }
+  drawAll();
+});
+
+function updateCentroidList(){
+  const list=document.getElementById('centroidList');
+  list.innerHTML='';
+  for(let i=0;i<k;i++){
+    const c=centroids[i];
+    let coordText='미선택';
+    if(c){
+      if(c._srcIdx!==undefined){
+        const u=USERS[dataset[c._srcIdx].userId];
+        coordText=u.name;
+      } else {
+        coordText='이동 중';
+      }
+    }
+    const div=document.createElement('div');
+    div.className='centroid-item'+(c?' set':'');
+    div.innerHTML=`
+      <div class="centroid-dot" style="background:${COLORS[i]}"></div>
+      <span style="flex:1">C${i+1}</span>
+      <span class="centroid-coords" style="font-size:10px">${coordText}</span>
+    `;
+    list.appendChild(div);
+  }
+}
+
+function updateHint(){
+  const hint=document.getElementById('canvasHint');
+  const hintText=document.getElementById('canvasHintText');
+  if(dataset.length>0 && (centroids.length>0||isDone)){
+    hint.style.opacity='0';
+  } else {
+    hint.style.opacity='1';
+    hintText.innerHTML='데이터 포인트를 클릭하여<br>초기 중심점을 선택하세요';
+  }
+}
+
+function setStatus(type,text){
+  const dot=document.getElementById('statusDot');
+  dot.className='status-dot'+(type?' '+type:'');
+  document.getElementById('statusText').textContent=text;
+}
+
+function addLog(iter,text,isFinal=false){
+  const panel=document.getElementById('logPanel');
+  const entry=document.createElement('div');
+  entry.className='log-entry'+(isFinal?' log-final':'');
+  entry.innerHTML=`<span class="log-iter">${iter}</span><span>${text}</span>`;
+  panel.appendChild(entry);
+  panel.scrollTop=panel.scrollHeight;
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function onKChange(val){
+  k=parseInt(val);
+  document.getElementById('kDisplay').textContent=k;
+  document.getElementById('kVal').textContent=k;
+  resetCentroids();
+}
+
+function resetCentroids(){
+  centroids=[]; assignments=[]; iteration=0;
+  isDone=false; isRunning=false; isPaused=false; hoveredPointIdx=-1;
+  if(pauseResolve){pauseResolve();pauseResolve=null;}
+  USERS.forEach(u=>u.cluster=-1);
+  document.getElementById('iterCount').textContent=0;
+  const rb=document.getElementById('runBtn');
+  rb.disabled=true; rb.textContent='▶ 알고리즘 실행'; rb.className='btn btn-success';
+  document.getElementById('stepBtn').disabled=true;
+  updateCentroidList();
+  setStatus('','중심점을 선택하세요');
+  drawAll();
+}
+
+function fullReset(){
+  centroids=[]; assignments=[]; iteration=0;
+  isDone=false; isRunning=false; isPaused=false; hoveredPointIdx=-1;
+  if(pauseResolve){pauseResolve();pauseResolve=null;}
+  USERS.forEach(u=>u.cluster=-1);
+  document.getElementById('iterCount').textContent=0;
+  const rb=document.getElementById('runBtn');
+  rb.disabled=true;
+  rb.textContent='▶ 알고리즘 실행'; rb.className='btn btn-success';
+  document.getElementById('stepBtn').disabled=true;
+  document.getElementById('logPanel').innerHTML=
+    `<div class="log-entry"><span class="log-iter">준비</span><span>데이터 ${USERS.length}명 로드 완료</span></div>`;
+  updateCentroidList();
+  setStatus('',`데이터 ${USERS.length}명. 중심점을 선택하세요.`);
+  renderTable();
+  drawAll();
+}
+
+function setSpeed(ms,el){
+  animSpeed=ms;
+  document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// 탭 3 — 추천 결과
+// ══════════════════════════════════════════
+function renderRecommendTab(){
+  const notice=document.getElementById('recommendNotice');
+  const grid=document.getElementById('clustersGrid');
+  const sec=document.getElementById('userRecommendSection');
+
+  if(!isDone){
+    notice.className='recommend-notice';
+    notice.textContent='⚠️ 먼저 탭 2에서 K-Means 알고리즘을 실행하고 군집화를 완료하세요.';
+    grid.innerHTML='';
+    sec.style.display='none';
+    return;
+  }
+
+  notice.className='recommend-notice done';
+  notice.textContent=`✅ ${k}개 군집 군집화 완료! 각 군집의 특성을 확인하고 추천을 생각해보세요.`;
+
+  grid.innerHTML='';
+  for(let ci=0;ci<k;ci++){
+    const members=USERS.filter(u=>u.cluster===ci);
+    if(!members.length) continue;
+
+    const avgs={};
+    ATTRIBUTES.forEach(a=>{
+      avgs[a.id]=members.reduce((s,u)=>s+u[a.id],0)/members.length;
+    });
+
+    const tags=getClusterTags(avgs);
+    const card=document.createElement('div');
+    card.className='cluster-card';
+    const color=COLORS[ci];
+
+    let statsHTML='';
+    ATTRIBUTES.forEach(a=>{
+      const norm=(avgs[a.id]-a.min)/(a.max-a.min);
+      const valStr=avgs[a.id].toFixed(a.max<=5?1:0);
+      statsHTML+=`
+        <div class="cluster-stat-row">
+          <div class="cluster-stat-label">${a.icon} ${a.name}</div>
+          <div class="cluster-stat-bar-wrap">
+            <div class="cluster-stat-bar-bg">
+              <div class="cluster-stat-bar-fill" style="width:${norm*100}%;background:${a.color}"></div>
+            </div>
+            <div class="cluster-stat-val" style="color:${a.color}">${valStr}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    const tagsHTML=tags.map(t=>
+      `<div class="char-tag" style="color:${color};border-color:${color}33;background:${color}11">${t}</div>`
+    ).join('');
+
+    card.innerHTML=`
+      <div class="cluster-card-header">
+        <div class="cluster-color-dot" style="background:${color}"></div>
+        <div class="cluster-card-title">군집 ${ci+1}</div>
+        <div class="cluster-card-count">${members.length}명</div>
+      </div>
+      <div class="cluster-card-body">
+        ${statsHTML}
+        <div class="cluster-char-tags">${tagsHTML}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+
+  sec.style.display='block';
+  const sel=document.getElementById('userSelect');
+  sel.innerHTML='<option value="">— 사용자를 선택하세요 —</option>';
+  USERS.forEach(u=>{
+    const opt=document.createElement('option');
+    opt.value=u.id;
+    opt.textContent=`${u.name} (${u.age}세) — 군집 ${u.cluster+1}`;
+    sel.appendChild(opt);
+  });
+  document.getElementById('userProfileCard').classList.remove('visible');
+  document.getElementById('recommendBox').classList.remove('visible');
+  document.getElementById('thinkPrompt').classList.remove('visible');
+}
+
+function getClusterTags(avgs){
+  const tags=[];
+  const ageA=ATTRIBUTES.find(a=>a.id==='age');
+  const a=ATTRIBUTES.find(a=>a.id==='action');
+  const e=ATTRIBUTES.find(a=>a.id==='emotional');
+  const f=ATTRIBUTES.find(a=>a.id==='frequency');
+  const r=ATTRIBUTES.find(a=>a.id==='rating');
+
+  const aNorm=(avgs.action-a.min)/(a.max-a.min);
+  const eNorm=(avgs.emotional-e.min)/(e.max-e.min);
+  const fNorm=(avgs.frequency-f.min)/(f.max-f.min);
+  const rNorm=(avgs.rating-r.min)/(r.max-r.min);
+
+  // 나이대 태그
+  if(avgs.age < 25) tags.push('🧒 젊은층');
+  else if(avgs.age < 40) tags.push('🧑 중간 연령');
+  else tags.push('🧓 장년층');
+
+  if(aNorm>0.6) tags.push('🎬 액션 선호');
+  else if(aNorm<0.35) tags.push('🎭 액션 비선호');
+  if(eNorm>0.6) tags.push('💛 감성파');
+  else if(eNorm<0.35) tags.push('🧊 감성 낮음');
+  if(fNorm>0.55) tags.push('📺 헤비 시청자');
+  else if(fNorm<0.3) tags.push('🌱 라이트 유저');
+  if(rNorm>0.7) tags.push('⭐ 까다로운 취향');
+  else if(rNorm<0.4) tags.push('😊 너그러운 평가자');
+
+  return tags;
+}
+
+function onUserSelect(userId){
+  if(!userId){
+    document.getElementById('userProfileCard').classList.remove('visible');
+    document.getElementById('recommendBox').classList.remove('visible');
+    document.getElementById('thinkPrompt').classList.remove('visible');
+    return;
+  }
+  const u=USERS[parseInt(userId)];
+  const ci=u.cluster;
+  const color=COLORS[ci];
+
+  const profileCard=document.getElementById('userProfileCard');
+  profileCard.classList.add('visible');
+  profileCard.innerHTML=`
+    <div class="user-profile-name" style="color:${color}">${u.name} <span style="font-size:12px;color:var(--text-muted);font-weight:400">군집 ${ci+1}</span></div>
+    <div class="user-profile-attrs">
+      ${ATTRIBUTES.map(a=>`
+        <div class="user-attr-pill">
+          <span>${a.icon} ${a.name}</span>
+          <strong>${u[a.id]}${a.unit}</strong>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const members=USERS.filter(m=>m.cluster===ci);
+  const avgs={};
+  ATTRIBUTES.forEach(a=>{ avgs[a.id]=members.reduce((s,m)=>s+m[a.id],0)/members.length; });
+
+  const recs=getRecommendations(avgs);
+  const recBox=document.getElementById('recommendBox');
+  recBox.classList.add('visible');
+  recBox.innerHTML=`
+    <div class="recommend-box-title">🎬 이 사용자와 같은 군집(군집 ${ci+1})의 평균 특성 기반 추천 후보</div>
+    <div class="recommend-items">
+      ${recs.map(r=>`
+        <div class="recommend-item" style="color:${color};border-color:${color}44;background:${color}0d">
+          ${r.emoji} ${r.title}
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const tags=getClusterTags(avgs);
+  const prompt=document.getElementById('thinkPrompt');
+  prompt.classList.add('visible');
+  prompt.innerHTML=`
+    💡 <strong>생각해봅시다</strong><br>
+    <strong>${u.name}</strong>이 속한 군집 ${ci+1}의 특성은 <strong>${tags.join(', ')}</strong> 입니다.<br>
+    이 사용자에게 위 추천이 잘 맞을까요? 왜 K-Means 군집화가 추천 시스템에 유용한지 생각해보세요.
+  `;
+}
+
+function getRecommendations(avgs){
+  const aNorm=avgs.action/100;
+  const eNorm=avgs.emotional/100;
+  const fNorm=avgs.frequency/20;
+
+  if(aNorm>0.6 && eNorm<0.4){
+    return [
+      {emoji:'🚀',title:'미션 임파서블 시리즈'},
+      {emoji:'💥',title:'어벤저스: 엔드게임'},
+      {emoji:'🔥',title:'탑건: 매버릭'},
+      {emoji:'🥊',title:'크리드 III'},
+    ];
+  } else if(eNorm>0.6 && aNorm<0.4){
+    return [
+      {emoji:'💌',title:'비포 선라이즈'},
+      {emoji:'🌸',title:'500일의 썸머'},
+      {emoji:'😢',title:'나의 아저씨'},
+      {emoji:'🏡',title:'이웃집 토토로'},
+    ];
+  } else if(fNorm<0.3){
+    return [
+      {emoji:'🎭',title:'쇼생크 탈출'},
+      {emoji:'🌟',title:'인터스텔라'},
+      {emoji:'🎬',title:'기생충'},
+      {emoji:'🎪',title:'그랜드 부다페스트 호텔'},
+    ];
+  } else {
+    return [
+      {emoji:'🔍',title:'셜록 홈즈'},
+      {emoji:'🌍',title:'킹덤 (드라마)'},
+      {emoji:'🎮',title:'레디 플레이어 원'},
+      {emoji:'🌊',title:'인셉션'},
+    ];
+  }
+}
+
+// ══════════════════════════════════════════
+// 초기화
+// ══════════════════════════════════════════
+window.addEventListener('load',()=>{
+  buildDataset();
+  renderTable();
+  resizeCanvas();
+  fullReset();
+});
+window.addEventListener('resize',()=>{ resizeCanvas(); });
+</script>
+</body>
+</html>
