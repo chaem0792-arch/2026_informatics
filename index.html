@@ -94,6 +94,7 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
+        /* 컨테이너 푸터 하단 고정을 위한 설정 추가 */
         .container {
             position: relative;
             z-index: 2;
@@ -103,7 +104,6 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
         }
 
         /* 헤더 영역 */
@@ -165,12 +165,14 @@
             font-weight: 400;
         }
 
-        /* 카드 그리드 */
+        /* 💡 카드 그리드 수정: Flexbox 기반 중앙 정렬 레이아웃 */
         .button-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 20px;
             animation: fadeInUp 0.8s ease-out 0.2s backwards;
+            margin-bottom: 64px; /* 푸터와의 간격 확보 */
         }
 
         @keyframes fadeInUp {
@@ -184,12 +186,16 @@
             }
         }
 
+        /* 💡 카드 개별 너비 설정 (3개가 한 줄에 꽉 차도록 비율 계산) */
         .nav-button {
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             min-height: 200px;
+            width: calc(33.333% - 14px); /* 3단 배열 일 때 간격 제외 계산 */
+            min-width: 280px; /* 창이 줄어들 때 최소 크기 보장 */
+            max-width: 380px; /* 카드가 너무 거대해지는 것 방지 */
             padding: 28px;
             background: var(--card-bg);
             backdrop-filter: blur(20px);
@@ -235,6 +241,7 @@
         .nav-button:nth-child(2)::after { background: var(--gradient-2); }
         .nav-button:nth-child(3)::after { background: var(--gradient-3); }
         .nav-button:nth-child(4)::after { background: var(--gradient-4); }
+        .nav-button:nth-child(5)::after { background: var(--gradient-1); } /* 5번 카드용 그라데이션 임의 추가 */
 
         .nav-button:hover {
             transform: translateY(-6px);
@@ -337,9 +344,9 @@
             text-transform: uppercase;
         }
 
-        /* 푸터 */
+        /* 💡 푸터 수정: 늘 화면 최하단에 한 줄로 깔끔하게 배치 */
         .footer {
-            margin-top: 64px;
+            margin-top: auto; /* 중요: 컨테이너의 남은 공간을 밀어내어 최하단에 고정 */
             padding-top: 24px;
             border-top: 1px solid var(--card-border);
             display: flex;
@@ -348,6 +355,7 @@
             color: var(--text-muted);
             font-size: 13px;
             animation: fadeInUp 0.8s ease-out 0.4s backwards;
+            width: 100%;
         }
 
         .footer-links {
@@ -365,7 +373,13 @@
             color: var(--text-primary);
         }
 
-        /* 반응형 */
+        /* 반응형 모바일 디자인 */
+        @media (max-width: 900px) {
+            .nav-button {
+                width: calc(50% - 10px); /* 태블릿 등에서는 2열로 정렬 */
+            }
+        }
+
         @media (max-width: 640px) {
             .container {
                 padding: 40px 20px;
@@ -374,10 +388,13 @@
                 margin-bottom: 40px;
             }
             .button-grid {
-                grid-template-columns: 1fr;
+                flex-direction: column;
+                align-items: center;
                 gap: 14px;
             }
             .nav-button {
+                width: 100%; /* 모바일에서는 1열 꽉 차게 */
+                max-width: 100%;
                 min-height: 160px;
                 padding: 22px;
             }
@@ -505,9 +522,10 @@
                     <span class="tag">강화학습</span>
                 </div>
             </a>
+        </nav>
 
         <footer class="footer">
-            <div>© 2026 Your Name. All rights reserved.</div>
+            <div>© 2026 Jungang Girls HighSchool</div>
             <div class="footer-links">
                 <a href="#about">About</a>
                 <a href="#contact">Contact</a>
