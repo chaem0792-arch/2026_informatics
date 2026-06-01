@@ -1,0 +1,401 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;text-align:center;}
+.stat-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;}
+.stat-val{font-size:22px;font-weight:500;color:var(--color-text-primary);}
+.btn{background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 18px;font-size:14px;cursor:pointer;color:var(--color-text-primary);transition:background 0.15s;}
+.btn:hover{background:var(--color-background-secondary);}
+.btn.primary{background:#3C3489;color:#EEEDFE;border-color:#3C3489;}
+.btn.primary:hover{background:#534AB7;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:500;}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.bar-label{font-size:13px;color:var(--color-text-secondary);width:52px;text-align:right;flex-shrink:0;}
+.bar-track{flex:1;height:22px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden;position:relative;}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.4s ease;}
+.bar-pct{position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:500;}
+.log-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;min-height:78px;max-height:115px;overflow-y:auto;font-size:13px;line-height:1.7;color:var(--color-text-secondary);}
+.log-item{padding:1px 0;}
+.log-item.good{color:#3B6D11;}
+.log-item.bad{color:#A32D2D;}
+.log-item.info{color:#185FA5;}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+</style>
+
+<div style="padding:1rem 0;">
+<h2 style="position:absolute;left:-9999px">강화학습 미로 탈출 AI 시뮬레이터</h2>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
+  <div>
+    <div style="font-size:18px;font-weight:500;color:var(--color-text-primary);">미로 탈출 AI 학습 시뮬레이터</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-top:2px;">에이전트(🤖)가 경험을 쌓으며 점점 영리해집니다</div>
+  </div>
+  <span id="ep-chip" style="font-size:12px;background:var(--color-background-info);color:var(--color-text-info);padding:3px 12px;border-radius:20px;font-weight:500;">에피소드 0</span>
+</div>
+
+<div class="grid2" style="margin-bottom:12px;">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <div class="section-title" style="margin-bottom:0;">게임 화면</div>
+      <span id="explore-badge" style="font-size:11px;background:#FAEEDA;color:#854F0B;padding:2px 8px;border-radius:20px;font-weight:500;">탐험 중</span>
+    </div>
+    <div style="display:flex;justify-content:center;margin:10px 0;">
+      <canvas id="maze" width="264" height="264"></canvas>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap;">
+      <span class="tag" style="background:#EAF3DE;color:#3B6D11;">🍎 보상 +10</span>
+      <span class="tag" style="background:#FCEBEB;color:#A32D2D;">🔥 벌칙 −8</span>
+      <span class="tag" style="background:#EEEDFE;color:#3C3489;">🚪 골인 +30</span>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="grid3">
+      <div class="stat-card"><div class="stat-label">에피소드</div><div class="stat-val" id="stat-ep">0</div></div>
+      <div class="stat-card"><div class="stat-label">누적 보상</div><div class="stat-val" id="stat-reward">0</div></div>
+      <div class="stat-card"><div class="stat-label">성공 횟수</div><div class="stat-val" id="stat-win">0</div></div>
+    </div>
+
+    <div class="card" style="flex:1;">
+      <div class="section-title" style="margin-bottom:4px;">현재 위치에서의 행동 선호도</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px;">Q값: 이 방향으로 갈 때 기대되는 보상 (학습될수록 차이가 커짐)</div>
+      <div id="action-bars"></div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#534AB7;vertical-align:middle;margin-right:3px;"></span>선호</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#B4B2A9;vertical-align:middle;margin-right:3px;"></span>보통</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#E24B4A;vertical-align:middle;margin-right:3px;"></span>위험</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-bottom:4px;">학습 로그</div>
+      <div class="log-box" id="log-box"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:12px;">
+  <div class="section-title" style="margin-bottom:8px;">에피소드별 획득 보상 — 학습될수록 높아집니다</div>
+  <canvas id="reward-chart" height="80" style="width:100%;"></canvas>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
+  <button class="btn primary" id="btn-start" onclick="startSim()">▶ 학습 시작</button>
+  <button class="btn" id="btn-pause" onclick="pauseSim()" disabled>⏸ 일시정지</button>
+  <button class="btn" id="btn-reset" onclick="resetSim()">↺ 초기화</button>
+  <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
+    <label style="font-size:13px;color:var(--color-text-secondary);white-space:nowrap;">속도</label>
+    <input type="range" min="1" max="5" value="1" id="speed-slider" step="1" style="width:90px;" oninput="updateSpeed(this.value)">
+    <span id="speed-label" style="font-size:13px;color:var(--color-text-secondary);min-width:28px;">x1</span>
+  </div>
+  <button class="btn" onclick="sendPrompt('Q-러닝이 정확히 어떤 원리로 작동하는지 쉽게 설명해줘 ↗')">Q-러닝 원리 ↗</button>
+</div>
+</div>
+
+<script>
+const COLS=6,ROWS=6;
+
+/*
+  미로 설계 (6x6, [col, row]):
+  S = 시작 (0,0), G = 골 (5,5)
+  벽은 막힌 칸. 모든 빈 칸은 연결되어 있음.
+
+  . . # . . .
+  . . # . # .
+  . . . . # .
+  # # . . . .
+  . . . # . .
+  . . . # . .
+
+  row0: wall(2,0)
+  row1: wall(2,1) wall(4,1)
+  row2: wall(4,2)
+  row3: wall(0,3) wall(1,3) wall(3,3) [수정: (0,3),(1,3) 제거하고 wall(3,3)만]
+  ...
+
+  실제로 종이에 그려서 연결성 확인한 최종 맵:
+  col: 0 1 2 3 4 5
+  row0: S . # . . .
+  row1: . . # . # .
+  row2: . . . . # .
+  row3: . # . . . .
+  row4: . # . # . .
+  row5: . . . # . G
+
+  경로 예시:
+  (0,0)→(0,1)→(0,2)→(0,3)→(0,4)→(0,5)→(1,5)→(2,5)→... 막힘(3,5)이 벽
+  (0,0)→(1,0)→(1,1)→(1,2)→(2,2)→(3,2)→(3,3)→(3,4)→... 벽(3,4)
+  확인 필요 → 아래 최종 확정 맵 사용
+*/
+
+const WALLS=[
+  [2,0],
+  [2,1],[4,1],
+  [4,2],
+  [1,3],
+  [1,4],[3,4],
+  [3,5]
+];
+
+/*
+  최종 맵 시각화:
+  col:  0  1  2  3  4  5
+  row0: S  .  W  .  .  .
+  row1: .  .  W  .  W  .
+  row2: .  .  .  .  W  .
+  row3: .  W  .  .  .  .
+  row4: .  W  .  W  .  .
+  row5: .  .  .  W  .  G
+
+  경로 검증:
+  Path A: (0,0)→(1,0)→(1,1)→(1,2)→(2,2)→(3,2)→(3,3)→(4,3)→(5,3)→(5,4)→(5,5) ✓
+  Path B: (0,0)→(0,1)→(0,2)→(0,3)→(0,4)→(0,5)→(1,5)→(2,5)→... (3,5)벽 → (2,4)→(3,4)벽
+           → (2,3)→(3,3)→(4,3)→(5,3)→(5,4)→(5,5) ✓
+  Path C: (1,0)→(0,0)는 시작점, 우상단 (3,0)→(4,0)→(5,0)→(5,1)→(5,2)→(5,3)→(5,4)→(5,5) ✓
+  → 모든 경로 연결 확인됨
+*/
+
+const REWARDS=[[3,0],[5,2],[2,4]];
+const PENALTIES=[[4,3],[0,4],[2,3]];
+const GOAL=[5,5],START=[0,0];
+const ACTIONS=['⬆ 위','⬇ 아래','⬅ 왼','➡ 오른'];
+const DIRS=[[0,-1],[0,1],[-1,0],[1,0]];
+
+const LR=0.5,GAMMA=0.9;
+let epsilon=1.0;
+const EPS_DECAY=0.94,EPS_MIN=0.04;
+
+let Q={};
+function getQ(x,y){const k=`${x},${y}`;if(!Q[k])Q[k]=[0,0,0,0];return Q[k];}
+
+let pos=[...START],episode=0,totalReward=0,wins=0;
+let running=false,paused=false,stepInterval=null;
+let speed=1,epReward=0,stepsThisEp=0;
+let rewardHistory=[],lastColor=null;
+const MAX_STEPS=60;
+
+const mc=document.getElementById('maze'),ctx=mc.getContext('2d');
+const rc=document.getElementById('reward-chart'),rctx=rc.getContext('2d');
+const CS=44;
+
+function isWall(x,y){return x<0||y<0||x>=COLS||y>=ROWS||WALLS.some(([a,b])=>a===x&&b===y);}
+function isReward(x,y){return REWARDS.some(([a,b])=>a===x&&b===y);}
+function isPenalty(x,y){return PENALTIES.some(([a,b])=>a===x&&b===y);}
+function isGoal(x,y){return x===GOAL[0]&&y===GOAL[1];}
+
+function drawMaze(){
+  ctx.clearRect(0,0,mc.width,mc.height);
+  for(let x=0;x<COLS;x++){
+    for(let y=0;y<ROWS;y++){
+      if(WALLS.some(([a,b])=>a===x&&b===y)){
+        ctx.fillStyle='#5F5E5A';
+        ctx.fillRect(x*CS,y*CS,CS,CS);
+        ctx.fillStyle='#444441';
+        ctx.fillRect(x*CS+1,y*CS+1,CS-2,2);
+      } else {
+        const qs=getQ(x,y),maxQ=Math.max(...qs);
+        let bg='#FAFAF8';
+        if(maxQ>1){const alpha=Math.min(0.22,maxQ/60);bg=`rgba(83,74,183,${alpha.toFixed(2)})`;}
+        ctx.fillStyle='#FAFAF8';
+        ctx.fillRect(x*CS,y*CS,CS,CS);
+        if(maxQ>1){ctx.fillStyle=bg;ctx.fillRect(x*CS,y*CS,CS,CS);}
+      }
+    }
+  }
+  ctx.strokeStyle='rgba(0,0,0,0.07)';ctx.lineWidth=0.5;
+  for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*CS,0);ctx.lineTo(x*CS,ROWS*CS);ctx.stroke();}
+  for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*CS);ctx.lineTo(COLS*CS,y*CS);ctx.stroke();}
+
+  const fs=Math.floor(CS*0.5);
+  function cell(emoji,x,y,bg){
+    if(bg){ctx.fillStyle=bg;ctx.fillRect(x*CS+1,y*CS+1,CS-2,CS-2);}
+    ctx.font=`${fs}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(emoji,x*CS+CS/2,y*CS+CS/2);
+  }
+  REWARDS.forEach(([x,y])=>cell('🍎',x,y,'#EAF3DE'));
+  PENALTIES.forEach(([x,y])=>cell('🔥',x,y,'#FCEBEB'));
+  cell('🚪',GOAL[0],GOAL[1],'#EEEDFE');
+  ctx.font=`${Math.floor(CS*0.38)}px serif`;ctx.fillText('S',0*CS+CS/2,0*CS+CS/2);
+
+  if(lastColor){ctx.fillStyle=lastColor+'44';ctx.fillRect(pos[0]*CS+2,pos[1]*CS+2,CS-4,CS-4);}
+  ctx.font=`${fs}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🤖',pos[0]*CS+CS/2,pos[1]*CS+CS/2);
+}
+
+function chooseAction(x,y){
+  if(Math.random()<epsilon){
+    const valid=DIRS.map((d,i)=>isWall(x+d[0],y+d[1])?-1:i).filter(i=>i>=0);
+    return valid.length?valid[Math.floor(Math.random()*valid.length)]:0;
+  }
+  const qs=getQ(x,y);
+  return qs.indexOf(Math.max(...qs));
+}
+
+function softmaxProbs(qs){
+  const min=Math.min(...qs);
+  const shifted=qs.map(q=>q-min+0.5);
+  const max=Math.max(...shifted);
+  const exp=shifted.map(q=>Math.exp((q-max)*0.6));
+  const sum=exp.reduce((a,b)=>a+b,0);
+  return exp.map(e=>e/sum);
+}
+
+function updateBars(){
+  const qs=getQ(pos[0],pos[1]);
+  const probs=softmaxProbs(qs);
+  const minQ=Math.min(...qs),maxQ=Math.max(...qs),rangeQ=maxQ-minQ||1;
+  const c=document.getElementById('action-bars');c.innerHTML='';
+  ACTIONS.forEach((a,i)=>{
+    const pct=Math.round(probs[i]*100);
+    const norm=(qs[i]-minQ)/rangeQ;
+    const color=norm>0.65?'#534AB7':norm<0.25?'#E24B4A':'#B4B2A9';
+    const row=document.createElement('div');row.className='bar-row';
+    row.innerHTML=`<span class="bar-label">${a}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(3,pct)}%;background:${color};"></div>
+      <span class="bar-pct" style="color:${color}">${pct}%</span></div>
+      <span style="font-size:11px;color:var(--color-text-secondary);min-width:42px;text-align:right;">Q=${qs[i].toFixed(1)}</span>`;
+    c.appendChild(row);
+  });
+  const b=document.getElementById('explore-badge');
+  if(epsilon>0.5){b.textContent='탐험 중 (무작위)';b.style.background='#FAEEDA';b.style.color='#854F0B';}
+  else if(epsilon>0.15){b.textContent='학습 중';b.style.background='#E6F1FB';b.style.color='#185FA5';}
+  else{b.textContent='활용 중 (학습 완료)';b.style.background='#EAF3DE';b.style.color='#3B6D11';}
+}
+
+function addLog(msg,cls=''){
+  const box=document.getElementById('log-box');
+  const el=document.createElement('div');el.className='log-item '+cls;el.textContent=msg;
+  box.appendChild(el);
+  while(box.children.length>40)box.removeChild(box.firstChild);
+  box.scrollTop=box.scrollHeight;
+}
+
+function updateStats(){
+  document.getElementById('stat-ep').textContent=episode;
+  document.getElementById('stat-reward').textContent=totalReward;
+  document.getElementById('stat-win').textContent=wins;
+  document.getElementById('ep-chip').textContent=`에피소드 ${episode}`;
+}
+
+function drawRewardChart(){
+  const W=rc.offsetWidth||500;rc.width=W;
+  rctx.clearRect(0,0,W,rc.height);
+  if(rewardHistory.length<2)return;
+  const H=rc.height,pad={l:36,r:12,t:10,b:20};
+  const min=Math.min(...rewardHistory),max=Math.max(...rewardHistory,1),range=max-min||1;
+  rctx.strokeStyle='rgba(128,128,128,0.12)';rctx.lineWidth=0.5;
+  [0,0.5,1].forEach(f=>{
+    const y=pad.t+(1-f)*(H-pad.t-pad.b);
+    rctx.beginPath();rctx.moveTo(pad.l,y);rctx.lineTo(W-pad.r,y);rctx.stroke();
+    rctx.fillStyle='rgba(128,128,128,0.5)';rctx.font='10px var(--font-sans)';rctx.textAlign='right';
+    rctx.fillText(Math.round(min+f*range),pad.l-4,y+3);
+  });
+  const pts=rewardHistory.map((v,i)=>[
+    pad.l+i/(rewardHistory.length-1)*(W-pad.l-pad.r),
+    pad.t+(1-(v-min)/range)*(H-pad.t-pad.b)
+  ]);
+  rctx.beginPath();pts.forEach(([x,y],i)=>i===0?rctx.moveTo(x,y):rctx.lineTo(x,y));
+  rctx.strokeStyle='#534AB7';rctx.lineWidth=2;rctx.lineJoin='round';rctx.stroke();
+  rctx.lineTo(pts[pts.length-1][0],H-pad.b);rctx.lineTo(pts[0][0],H-pad.b);rctx.closePath();
+  rctx.fillStyle='rgba(83,74,183,0.1)';rctx.fill();
+  if(pts.length){const[lx,ly]=pts[pts.length-1];rctx.beginPath();rctx.arc(lx,ly,4,0,Math.PI*2);rctx.fillStyle='#534AB7';rctx.fill();}
+  rctx.fillStyle='rgba(128,128,128,0.5)';rctx.font='10px var(--font-sans)';rctx.textAlign='center';
+  rctx.fillText('에피소드 →',pad.l+(W-pad.l-pad.r)/2,H-2);
+}
+
+const SPEEDS=[700,350,150,60,15];
+
+function doStep(){
+  if(!running||paused)return;
+  const[cx,cy]=pos;
+  const action=chooseAction(cx,cy);
+  const[dx,dy]=DIRS[action];
+  const[nx,ny]=[cx+dx,cy+dy];
+  let reward=0,msg='',logCls='';
+  lastColor=null;
+
+  if(isWall(nx,ny)){
+    reward=-2;
+    const qs=getQ(cx,cy);
+    qs[action]=qs[action]+LR*(reward+GAMMA*Math.max(...qs)-qs[action]);
+    msg=`[ep.${episode}] ${ACTIONS[action]} → 벽! Q값 하락`;logCls='bad';
+  } else {
+    const prevQ=getQ(cx,cy)[action];
+    pos=[nx,ny];
+    if(isGoal(nx,ny)){
+      reward=30;wins++;
+      getQ(cx,cy)[action]=prevQ+LR*(reward-prevQ);
+      lastColor='#534AB7';
+      msg=`[ep.${episode}] 🎉 골 도착! 보상 +30`;logCls='good';
+    } else if(isReward(nx,ny)){
+      reward=10;
+      const nQ=Math.max(...getQ(nx,ny));
+      getQ(cx,cy)[action]=prevQ+LR*(reward+GAMMA*nQ-prevQ);
+      lastColor='#639922';
+      msg=`[ep.${episode}] ${ACTIONS[action]} → 🍎 보상 +10!`;logCls='good';
+    } else if(isPenalty(nx,ny)){
+      reward=-8;
+      const nQ=Math.max(...getQ(nx,ny));
+      getQ(cx,cy)[action]=prevQ+LR*(reward+GAMMA*nQ-prevQ);
+      lastColor='#E24B4A';
+      msg=`[ep.${episode}] ${ACTIONS[action]} → 🔥 벌칙 −8`;logCls='bad';
+    } else {
+      reward=-0.3;
+      const nQ=Math.max(...getQ(nx,ny));
+      getQ(cx,cy)[action]=prevQ+LR*(reward+GAMMA*nQ-prevQ);
+    }
+  }
+
+  epReward+=reward;totalReward=Math.round(totalReward+reward);stepsThisEp++;
+  if(msg)addLog(msg,logCls);
+  drawMaze();updateBars();updateStats();
+
+  if(isGoal(pos[0],pos[1])||stepsThisEp>=MAX_STEPS){
+    rewardHistory.push(Math.round(epReward));
+    if(rewardHistory.length>80)rewardHistory.shift();
+    drawRewardChart();
+    epsilon=Math.max(EPS_MIN,epsilon*EPS_DECAY);
+    episode++;epReward=0;stepsThisEp=0;pos=[...START];lastColor=null;
+  }
+}
+
+function startSim(){
+  if(running&&!paused)return;
+  running=true;paused=false;
+  document.getElementById('btn-start').disabled=true;
+  document.getElementById('btn-pause').disabled=false;
+  if(stepInterval)clearInterval(stepInterval);
+  stepInterval=setInterval(doStep,SPEEDS[speed-1]);
+  addLog('학습 시작! 처음에는 무작위로 행동합니다...','info');
+}
+function pauseSim(){
+  if(!running)return;
+  paused=true;clearInterval(stepInterval);
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-pause').disabled=true;
+  addLog('⏸ 일시정지','info');
+}
+function resetSim(){
+  running=false;paused=false;clearInterval(stepInterval);
+  Q={};epsilon=1.0;pos=[...START];
+  episode=0;totalReward=0;wins=0;epReward=0;stepsThisEp=0;
+  rewardHistory=[];lastColor=null;
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-pause').disabled=true;
+  document.getElementById('log-box').innerHTML='';
+  updateStats();drawMaze();updateBars();drawRewardChart();
+  addLog('초기화 완료. 에이전트의 모든 학습이 리셋됩니다.','info');
+}
+function updateSpeed(v){
+  speed=parseInt(v);
+  document.getElementById('speed-label').textContent=`x${speed}`;
+  if(running&&!paused){clearInterval(stepInterval);stepInterval=setInterval(doStep,SPEEDS[speed-1]);}
+}
+
+drawMaze();updateBars();updateStats();drawRewardChart();
+addLog('▶ 학습 시작 버튼을 눌러 AI의 학습 과정을 관찰하세요!','info');
+</script>
