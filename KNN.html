@@ -268,7 +268,7 @@ input[type=range]{width:100%;accent-color:var(--pass);height:4px;margin-top:2px}
         <div class="coord-display" id="s3-coord"><span>좌표</span>&nbsp;(5.0, 7.0)</div>
 
         <div class="divider"></div>
-        <div class="section-label">① 내 예측은?</div>
+        <div class="section-label">① 내 분류는?</div>
         <div class="pred-btns">
           <button class="pred-btn" id="pb-p" onclick="s3SelectPred('합격')">✅ 합격</button>
           <button class="pred-btn" id="pb-f" onclick="s3SelectPred('불합격')">❌ 불합격</button>
@@ -360,7 +360,7 @@ input[type=range]{width:100%;accent-color:var(--pass);height:4px;margin-top:2px}
         </div>
         <div class="chart-box" style="height:320px;margin-bottom:1rem"><canvas id="s4Chart"></canvas></div>
 
-        <div class="section-label">테스트 데이터 예측 결과</div>
+        <div class="section-label">테스트 데이터 분류 결과</div>
         <div class="table-wrap">
           <table class="test-res-table">
             <thead><tr><th>#</th><th>공부</th><th>수면</th><th>정답</th><th>예측</th><th>결과</th></tr></thead>
@@ -610,9 +610,9 @@ function s3Run() {
   let verdict = '';
   if (s3SelectedPred) {
     const ok = s3SelectedPred===prediction;
-    verdict = `내 예측 <strong>${s3SelectedPred}</strong> → <span class="${ok?'res-ok':'res-err'}">${ok?'✓ 정답입니다!':'✗ 틀렸습니다!'}</span>`;
+    verdict = `내 분류 <strong>${s3SelectedPred}</strong> → <span class="${ok?'res-ok':'res-err'}">${ok?'✓ 정답입니다!':'✗ 틀렸습니다!'}</span>`;
   } else {
-    verdict = '<span style="color:var(--muted)">예측을 선택하지 않았습니다.</span>';
+    verdict = '<span style="color:var(--muted)">분류 예상을 선택하지 않았습니다.</span>';
   }
   document.getElementById('s3-verdict').innerHTML = verdict;
 }
