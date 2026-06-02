@@ -412,6 +412,161 @@
   .think-prompt.visible { display: block; }
   .think-prompt strong { color: var(--accent); }
 
+  /* ── 탭 4: 성능 평가 ── */
+  .evaluate-layout {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden; padding: 24px 28px; gap: 20px;
+  }
+  .evaluate-notice {
+    background: rgba(240,136,62,0.1);
+    border: 1px solid rgba(240,136,62,0.3);
+    border-radius: 10px; padding: 14px 18px;
+    font-size: 13px; color: var(--accent3);
+    flex-shrink: 0;
+  }
+  .evaluate-notice.done {
+    background: rgba(63,185,80,0.08);
+    border-color: rgba(63,185,80,0.3);
+    color: var(--accent2);
+  }
+  .evaluate-body {
+    flex: 1; display: flex; gap: 20px; overflow: hidden; min-height: 0;
+  }
+  /* 왼쪽: 개념 설명 패널 */
+  .silhouette-explain {
+    width: 300px; min-width: 300px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 16px;
+    overflow-y: auto;
+  }
+  .explain-section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .formula-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+  .formula-var { color: var(--accent4); font-weight: 600; }
+  .formula-desc { font-size: 11px; color: var(--text-muted); font-family: 'Noto Sans KR', sans-serif; margin-top: 8px; line-height: 1.6; }
+  .score-scale {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .score-scale-row {
+    display: flex; align-items: center; gap: 10px; font-size: 12px;
+  }
+  .score-scale-bar {
+    width: 36px; height: 10px; border-radius: 5px; flex-shrink: 0;
+  }
+  .score-scale-label { color: var(--text-muted); }
+  .score-scale-label strong { color: var(--text); }
+
+  /* 오른쪽: 차트 영역 */
+  .silhouette-charts {
+    flex: 1; display: flex; flex-direction: column; gap: 16px; overflow: hidden; min-height: 0;
+  }
+  .chart-controls {
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap;
+  }
+  .chart-controls-label { font-size: 13px; color: var(--text-muted); }
+  .k-btn-group { display: flex; gap: 6px; }
+  .k-eval-btn {
+    padding: 6px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .k-eval-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .k-eval-btn.active { background: rgba(88,166,255,0.15); border-color: var(--accent); color: var(--accent); }
+  .current-k-badge {
+    font-size: 12px; color: var(--text-muted);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 5px 10px;
+  }
+  .current-k-badge strong { color: var(--accent3); }
+
+  .charts-row {
+    flex: 1; display: flex; gap: 16px; overflow: hidden; min-height: 0;
+  }
+  /* 실루엣 막대 차트 */
+  .sil-bar-panel {
+    flex: 1; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+    overflow: hidden; min-height: 0;
+  }
+  .chart-panel-title {
+    font-size: 12px; font-weight: 700; color: var(--text-muted);
+    letter-spacing: 0.5px; flex-shrink: 0;
+  }
+  .sil-bars-wrap {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3px;
+  }
+  .sil-bar-row {
+    display: flex; align-items: center; gap: 8px; font-size: 11px; flex-shrink: 0;
+  }
+  .sil-bar-name {
+    width: 54px; min-width: 54px; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sil-bar-track {
+    flex: 1; height: 12px; background: var(--surface2);
+    border-radius: 6px; overflow: hidden; position: relative;
+  }
+  .sil-bar-zero { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--border); }
+  .sil-bar-fill {
+    position: absolute; top: 1px; height: 10px; border-radius: 5px;
+    transition: width 0.5s ease, left 0.5s ease;
+  }
+  .sil-bar-val {
+    width: 34px; min-width: 34px; text-align: right;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  }
+  .sil-bars-wrap::-webkit-scrollbar { width: 4px; }
+  .sil-bars-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* K별 평균 실루엣 라인 차트 */
+  .sil-line-panel {
+    width: 300px; min-width: 300px;
+    background: var(--surface);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .sil-line-canvas-wrap {
+    flex: 1; position: relative; min-height: 0;
+  }
+  #silLineCanvas { width: 100%; height: 100%; display: block; }
+  .sil-avg-display {
+    text-align: center; flex-shrink: 0;
+    padding: 10px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .sil-avg-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .sil-avg-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px; font-weight: 700;
+  }
+  .sil-avg-interp { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  .silhouette-explain::-webkit-scrollbar { width: 4px; }
+  .silhouette-explain::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
   .toast {
     position: fixed; bottom: 28px; left: 50%;
     transform: translateX(-50%) translateY(16px);
@@ -442,6 +597,9 @@
   </button>
   <button class="tab-btn" onclick="switchTab('recommend', event)">
     <span>🎬</span> 추천 결과 <span class="tab-num">3</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('evaluate', event)">
+    <span>📈</span> 성능 평가 <span class="tab-num">4</span>
   </button>
 </nav>
 
@@ -564,6 +722,112 @@
       <div class="think-prompt" id="thinkPrompt"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- 탭 4 -->
+<div class="tab-content" id="tab-evaluate">
+  <div class="evaluate-layout">
+
+    <div class="evaluate-notice" id="evaluateNotice">
+      ⚠️ 먼저 탭 2에서 K-Means 알고리즘을 실행하고 군집화를 완료하세요.
+    </div>
+
+    <div class="evaluate-body" id="evaluateBody" style="display:none">
+
+      <!-- 왼쪽: 개념 설명 -->
+      <div class="silhouette-explain">
+        <div>
+          <div class="explain-section-title">📐 실루엣 계수란?</div>
+          <div class="formula-box">
+            <div><span class="formula-var">s(i)</span> = <span style="color:var(--accent2)">(b − a)</span> / <span style="color:var(--accent3)">max(a, b)</span></div>
+            <div class="formula-desc">
+              <b style="color:var(--accent2)">a</b> : 같은 군집 내 다른 점들과의 평균 거리<br>
+              <b style="color:var(--accent3)">b</b> : 가장 가까운 다른 군집 점들과의 평균 거리<br><br>
+              각 데이터 포인트마다 −1 ~ 1 사이의 점수를 계산합니다.
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="explain-section-title">🎯 점수 해석</div>
+          <div class="score-scale">
+            <div class="score-scale-row">
+              <div class="sil-bar-track" style="width:36px;height:10px;flex-shrink:0">
+                <div class="sil-bar-fill" style="width:90%;left:50%;background:#3fb950"></div>
+              </div>
+              <div class="score-scale-label"><strong>0.7 이상</strong> — 군집이 매우 잘 분리됨</div>
+            </div>
+            <div class="score-scale-row">
+              <div class="sil-bar-track" style="width:36px;height:10px;flex-shrink:0">
+                <div class="sil-bar-fill" style="width:55%;left:50%;background:#79c0ff"></div>
+              </div>
+              <div class="score-scale-label"><strong>0.5 ~ 0.7</strong> — 적절한 군집화</div>
+            </div>
+            <div class="score-scale-row">
+              <div class="sil-bar-track" style="width:36px;height:10px;flex-shrink:0">
+                <div class="sil-bar-fill" style="width:30%;left:50%;background:#f0883e"></div>
+              </div>
+              <div class="score-scale-label"><strong>0.25 ~ 0.5</strong> — 군집 경계가 불명확</div>
+            </div>
+            <div class="score-scale-row">
+              <div class="sil-bar-track" style="width:36px;height:10px;flex-shrink:0">
+                <div class="sil-bar-fill" style="width:10%;left:50%;background:#f85149"></div>
+              </div>
+              <div class="score-scale-label"><strong>0.25 미만</strong> — 잘못된 군집화</div>
+            </div>
+            <div class="score-scale-row">
+              <div class="sil-bar-track" style="width:36px;height:10px;flex-shrink:0;background:var(--surface2)">
+                <div class="sil-bar-zero" style="left:50%"></div>
+                <div class="sil-bar-fill" style="width:20%;right:50%;left:auto;background:#f85149;transform:scaleX(-1)"></div>
+              </div>
+              <div class="score-scale-label"><strong>음수</strong> — 잘못된 군집에 배정됨</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="explain-section-title">💡 K값과의 관계</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.7;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
+            K가 너무 작으면 서로 다른 그룹이 하나로 묶여 군집 내 거리(a)가 커집니다.
+            K가 너무 크면 자연스러운 군집이 쪼개져 군집 간 거리(b)가 작아집니다.
+            <br><br>
+            오른쪽 그래프에서 <strong style="color:var(--accent)">평균 실루엣 계수가 가장 높은 K</strong>가 이 데이터셋에 가장 적합한 군집 수입니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 차트들 -->
+      <div class="silhouette-charts">
+        <div class="chart-controls">
+          <span class="chart-controls-label">K 값 선택:</span>
+          <div class="k-btn-group" id="kEvalBtnGroup"></div>
+          <div class="current-k-badge">현재 실습한 K = <strong id="currentKBadge">—</strong></div>
+        </div>
+
+        <div class="charts-row">
+          <!-- 개별 실루엣 막대 -->
+          <div class="sil-bar-panel">
+            <div class="chart-panel-title">📊 개별 실루엣 계수 (K = <span id="barChartKLabel">—</span>)</div>
+            <div class="sil-bars-wrap" id="silBarsWrap"></div>
+          </div>
+
+          <!-- K별 평균 라인 차트 -->
+          <div class="sil-line-panel">
+            <div class="chart-panel-title">📈 K별 평균 실루엣 계수</div>
+            <div class="sil-line-canvas-wrap">
+              <canvas id="silLineCanvas"></canvas>
+            </div>
+            <div class="sil-avg-display">
+              <div class="sil-avg-label">선택된 K의 평균 실루엣 계수</div>
+              <div class="sil-avg-value" id="silAvgValue">—</div>
+              <div class="sil-avg-interp" id="silAvgInterp">—</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 </div>
 
@@ -719,16 +983,8 @@ function regenerateDataset() {
 }
 
 // ══════════════════════════════════════════
-// 탭 전환
+// 탭 전환 — 하단의 완전한 버전으로 대체됨
 // ══════════════════════════════════════════
-function switchTab(id, ev) {
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  if(ev && ev.currentTarget) ev.currentTarget.classList.add('active');
-  if(id==='kmeans') resizeCanvas();
-  if(id==='recommend') renderRecommendTab();
-}
 
 // ══════════════════════════════════════════
 // 탭 1 — 테이블
@@ -993,6 +1249,8 @@ async function stepKMeans(){
 function onConverge(){
   isDone=true; isRunning=false; isPaused=false;
   assignClusters();
+  // 실루엣 캐시 무효화 (새 군집 결과 반영)
+  Object.keys(silhouetteCache).forEach(kv=>delete silhouetteCache[kv]);
   setStatus('done',`수렴 완료! (${iteration}번 반복)`);
   const rb=document.getElementById('runBtn');
   rb.disabled=true; rb.textContent='▶ 알고리즘 실행'; rb.className='btn btn-success';
@@ -1320,6 +1578,374 @@ function getRecommendations(avgs){
   } else {
     return [{emoji:'🔍',title:'셜록 홈즈'},{emoji:'🌍',title:'킹덤 (드라마)'},{emoji:'🎮',title:'레디 플레이어 원'},{emoji:'🌊',title:'인셉션'}];
   }
+}
+
+// ══════════════════════════════════════════
+// 탭 4 — 실루엣 계수 성능 평가
+// ══════════════════════════════════════════
+
+// 실루엣 계수 계산 (정규화된 x,y 좌표 기반)
+function computeSilhouette(pts, assigns, numK) {
+  const n = pts.length;
+  const scores = new Array(n);
+
+  for(let i = 0; i < n; i++) {
+    const ci = assigns[i];
+
+    // a(i): 같은 군집 내 평균 거리
+    let aSum = 0, aCount = 0;
+    for(let j = 0; j < n; j++) {
+      if(i !== j && assigns[j] === ci) {
+        aSum += Math.sqrt((pts[i].x-pts[j].x)**2 + (pts[i].y-pts[j].y)**2);
+        aCount++;
+      }
+    }
+    const a = aCount > 0 ? aSum / aCount : 0;
+
+    // b(i): 가장 가까운 다른 군집까지의 평균 거리
+    let bMin = Infinity;
+    for(let ck = 0; ck < numK; ck++) {
+      if(ck === ci) continue;
+      let bSum = 0, bCount = 0;
+      for(let j = 0; j < n; j++) {
+        if(assigns[j] === ck) {
+          bSum += Math.sqrt((pts[i].x-pts[j].x)**2 + (pts[i].y-pts[j].y)**2);
+          bCount++;
+        }
+      }
+      if(bCount > 0) {
+        const bAvg = bSum / bCount;
+        if(bAvg < bMin) bMin = bAvg;
+      }
+    }
+    const b = bMin === Infinity ? 0 : bMin;
+
+    const denom = Math.max(a, b);
+    scores[i] = denom === 0 ? 0 : (b - a) / denom;
+  }
+  return scores;
+}
+
+// 주어진 K로 K-means를 여러 번 돌려 가장 좋은 결과의 실루엣 반환 (빠른 버전)
+function runKMeansForEval(pts, numK, runs=5) {
+  let bestScore = -Infinity;
+  let bestAssigns = null;
+
+  for(let r = 0; r < runs; r++) {
+    // 랜덤 초기 중심점 (pts에서 샘플)
+    const shuffled = [...pts].map((_,i)=>i).sort(()=>Math.random()-0.5);
+    let cents = shuffled.slice(0, numK).map(i=>({x:pts[i].x, y:pts[i].y}));
+    let assigns = new Array(pts.length).fill(0);
+
+    for(let iter = 0; iter < 50; iter++) {
+      // 할당
+      let newAssigns = pts.map(pt => {
+        let minD = Infinity, best = 0;
+        cents.forEach((c,ci) => {
+          const d = (pt.x-c.x)**2 + (pt.y-c.y)**2;
+          if(d < minD){ minD=d; best=ci; }
+        });
+        return best;
+      });
+
+      // 중심점 이동
+      let moved = false;
+      const newCents = cents.map((_, ci) => {
+        const members = pts.filter((_,j) => newAssigns[j] === ci);
+        if(!members.length) return cents[ci];
+        const mx = members.reduce((s,p)=>s+p.x,0)/members.length;
+        const my = members.reduce((s,p)=>s+p.y,0)/members.length;
+        if(Math.abs(mx - cents[ci].x) + Math.abs(my - cents[ci].y) > 1e-9) moved = true;
+        return {x:mx, y:my};
+      });
+      cents = newCents;
+      assigns = newAssigns;
+      if(!moved) break;
+    }
+
+    const scores = computeSilhouette(pts, assigns, numK);
+    const avg = scores.reduce((s,v)=>s+v,0) / scores.length;
+    if(avg > bestScore) {
+      bestScore = avg;
+      bestAssigns = assigns.slice();
+    }
+  }
+
+  const scores = computeSilhouette(pts, bestAssigns, numK);
+  return { scores, assigns: bestAssigns, avg: scores.reduce((s,v)=>s+v,0)/scores.length };
+}
+
+// 점수 → 색상
+function silhouetteColor(score) {
+  if(score >= 0.7) return '#3fb950';
+  if(score >= 0.5) return '#79c0ff';
+  if(score >= 0.25) return '#f0883e';
+  if(score >= 0)   return '#f85149';
+  return '#bc8cff'; // 음수
+}
+
+// 점수 해석 문자열
+function silhouetteInterp(avg) {
+  if(avg >= 0.7) return '✅ 군집이 매우 명확하게 분리됨';
+  if(avg >= 0.5) return '🟡 적절한 군집화';
+  if(avg >= 0.25) return '🟠 군집 경계가 다소 불명확';
+  if(avg >= 0)   return '🔴 군집화 품질이 낮음';
+  return '⛔ 대부분 잘못된 군집에 배정됨';
+}
+
+// K별 캐시
+const silhouetteCache = {};
+
+function getOrComputeSilhouette(kv) {
+  if(!silhouetteCache[kv]) {
+    silhouetteCache[kv] = runKMeansForEval(dataset, kv);
+  }
+  return silhouetteCache[kv];
+}
+
+// 현재 실습 결과 (isDone=true)를 k=현재k에 덮어쓰기
+function injectCurrentResult() {
+  if(!isDone || assignments.length !== dataset.length) return;
+  const scores = computeSilhouette(dataset, assignments, k);
+  const avg = scores.reduce((s,v)=>s+v,0)/scores.length;
+  silhouetteCache[k] = { scores, assigns: assignments.slice(), avg };
+}
+
+let evalSelectedK = null;
+
+function renderEvaluateTab() {
+  const notice = document.getElementById('evaluateNotice');
+  const body   = document.getElementById('evaluateBody');
+
+  if(!isDone) {
+    notice.className = 'evaluate-notice';
+    notice.textContent = '⚠️ 먼저 탭 2에서 K-Means 알고리즘을 실행하고 군집화를 완료하세요.';
+    body.style.display = 'none';
+    return;
+  }
+
+  notice.className = 'evaluate-notice done';
+  notice.textContent = `✅ K = ${k} 군집화 완료. 아래에서 K값별 실루엣 계수를 비교해 보세요.`;
+  body.style.display = 'flex';
+
+  // 현재 실습 결과 주입
+  injectCurrentResult();
+
+  // K 버튼 그룹 (2~6)
+  const btnGroup = document.getElementById('kEvalBtnGroup');
+  btnGroup.innerHTML = '';
+  document.getElementById('currentKBadge').textContent = k;
+
+  for(let kv = 2; kv <= 6; kv++) {
+    const btn = document.createElement('button');
+    btn.className = 'k-eval-btn' + (kv === k ? ' active' : '');
+    btn.textContent = `K = ${kv}`;
+    if(kv === k) btn.title = '현재 실습한 K값';
+    btn.addEventListener('click', () => selectEvalK(kv));
+    btnGroup.appendChild(btn);
+  }
+
+  // 기본 선택: 현재 k
+  selectEvalK(k);
+}
+
+function selectEvalK(kv) {
+  evalSelectedK = kv;
+
+  // 버튼 활성화
+  document.querySelectorAll('.k-eval-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i+2) === kv);
+  });
+
+  // 실루엣 계산 (캐시 or 새로 계산)
+  const result = getOrComputeSilhouette(kv);
+
+  // 라인 차트 (K = 2~6 평균값 모두 표시)
+  drawSilLineChart(kv);
+
+  // 개별 막대 차트
+  document.getElementById('barChartKLabel').textContent = kv;
+  drawSilBarChart(result, kv);
+
+  // 평균 표시
+  const avgEl = document.getElementById('silAvgValue');
+  const interpEl = document.getElementById('silAvgInterp');
+  avgEl.textContent = result.avg.toFixed(3);
+  avgEl.style.color = silhouetteColor(result.avg);
+  interpEl.textContent = silhouetteInterp(result.avg);
+}
+
+function drawSilBarChart(result, kv) {
+  const wrap = document.getElementById('silBarsWrap');
+  wrap.innerHTML = '';
+
+  // 군집별로 그룹화 후 점수 내림차순 정렬
+  const groups = [];
+  for(let ci = 0; ci < kv; ci++) {
+    const members = dataset
+      .map((pt, i) => ({ name: USERS[pt.userId].name, score: result.scores[i], ci: result.assigns[i] }))
+      .filter(d => d.ci === ci)
+      .sort((a,b) => b.score - a.score);
+    groups.push({ ci, members });
+  }
+  // 군집별 평균 내림차순 정렬
+  groups.sort((a,b) => {
+    const avgA = a.members.reduce((s,m)=>s+m.score,0)/Math.max(1,a.members.length);
+    const avgB = b.members.reduce((s,m)=>s+m.score,0)/Math.max(1,b.members.length);
+    return avgB - avgA;
+  });
+
+  const color = COLORS;
+  const midX = 50; // 0 위치 (%)
+
+  groups.forEach(({ ci, members }) => {
+    // 군집 헤더
+    const header = document.createElement('div');
+    header.style.cssText = `font-size:10px;font-weight:700;color:${color[ci]};margin-top:6px;margin-bottom:2px;letter-spacing:0.5px;padding-left:62px`;
+    const avg = members.reduce((s,m)=>s+m.score,0)/Math.max(1,members.length);
+    header.textContent = `군집 ${ci+1}  (평균: ${avg.toFixed(2)})`;
+    wrap.appendChild(header);
+
+    members.forEach(m => {
+      const row = document.createElement('div');
+      row.className = 'sil-bar-row';
+
+      const s = m.score;
+      const absW = Math.abs(s) * midX; // 최대 midX%
+      const barLeft  = s >= 0 ? midX    : midX - absW;
+      const barWidth = absW;
+      const barColor = silhouetteColor(s);
+
+      row.innerHTML = `
+        <div class="sil-bar-name">${m.name}</div>
+        <div class="sil-bar-track">
+          <div class="sil-bar-zero" style="left:${midX}%"></div>
+          <div class="sil-bar-fill" style="left:${barLeft}%;width:${barWidth}%;background:${barColor}"></div>
+        </div>
+        <div class="sil-bar-val" style="color:${barColor}">${s.toFixed(2)}</div>
+      `;
+      wrap.appendChild(row);
+    });
+  });
+}
+
+function drawSilLineChart(selectedK) {
+  const cvs = document.getElementById('silLineCanvas');
+  const wrap = cvs.parentElement;
+  cvs.width  = wrap.clientWidth  || 250;
+  cvs.height = wrap.clientHeight || 200;
+  const c = cvs.getContext('2d');
+  c.clearRect(0, 0, cvs.width, cvs.height);
+
+  const kMin = 2, kMax = 6;
+  const PL = 44, PR = 16, PT = 16, PB = 36;
+  const W = cvs.width - PL - PR;
+  const H = cvs.height - PT - PB;
+
+  // 각 K의 평균 실루엣 수집
+  const vals = [];
+  for(let kv = kMin; kv <= kMax; kv++) {
+    const res = getOrComputeSilhouette(kv);
+    vals.push({ k: kv, avg: res.avg });
+  }
+
+  const minV = -0.1;
+  const maxV = 1.0;
+
+  const xPos = kv => PL + (kv - kMin) / (kMax - kMin) * W;
+  const yPos = v  => PT + H - (v - minV) / (maxV - minV) * H;
+
+  // 그리드 & Y축 레이블
+  c.strokeStyle = 'rgba(48,54,61,0.7)';
+  c.lineWidth = 1;
+  [0, 0.25, 0.5, 0.7, 1.0].forEach(v => {
+    const y = yPos(v);
+    c.beginPath(); c.moveTo(PL, y); c.lineTo(PL+W, y); c.stroke();
+    c.fillStyle = v === 0 ? 'rgba(248,81,73,0.5)' : 'rgba(125,133,144,0.6)';
+    c.font = '9px JetBrains Mono, monospace';
+    c.textAlign = 'right';
+    c.fillText(v.toFixed(2), PL - 4, y + 3);
+  });
+
+  // 0선 강조
+  c.strokeStyle = 'rgba(248,81,73,0.3)';
+  c.lineWidth = 1;
+  c.setLineDash([4,4]);
+  c.beginPath(); c.moveTo(PL, yPos(0)); c.lineTo(PL+W, yPos(0)); c.stroke();
+  c.setLineDash([]);
+
+  // 영역 채우기
+  c.beginPath();
+  c.moveTo(xPos(vals[0].k), yPos(0));
+  vals.forEach(d => c.lineTo(xPos(d.k), yPos(d.avg)));
+  c.lineTo(xPos(vals[vals.length-1].k), yPos(0));
+  c.closePath();
+  c.fillStyle = 'rgba(88,166,255,0.08)';
+  c.fill();
+
+  // 라인
+  c.beginPath();
+  vals.forEach((d, i) => {
+    i === 0 ? c.moveTo(xPos(d.k), yPos(d.avg)) : c.lineTo(xPos(d.k), yPos(d.avg));
+  });
+  c.strokeStyle = 'rgba(88,166,255,0.6)';
+  c.lineWidth = 2;
+  c.stroke();
+
+  // 포인트 & X레이블
+  vals.forEach(d => {
+    const x = xPos(d.k), y = yPos(d.avg);
+    const isSelected = d.k === selectedK;
+    const isCurrent  = d.k === k;
+
+    // X 레이블
+    c.fillStyle = isSelected ? 'var(--text)' : 'rgba(125,133,144,0.7)';
+    c.font = isSelected ? 'bold 10px JetBrains Mono, monospace' : '10px JetBrains Mono, monospace';
+    c.textAlign = 'center';
+    c.fillStyle = isSelected ? '#e6edf3' : '#7d8590';
+    c.fillText(`K=${d.k}`, x, PT + H + 22);
+
+    // 현재 K 표시 (삼각형)
+    if(isCurrent) {
+      c.fillStyle = 'rgba(240,136,62,0.8)';
+      c.beginPath();
+      c.moveTo(x-5, PT+H+10);
+      c.lineTo(x+5, PT+H+10);
+      c.lineTo(x,   PT+H+4);
+      c.closePath();
+      c.fill();
+    }
+
+    // 포인트
+    const dotColor = silhouetteColor(d.avg);
+    if(isSelected) {
+      c.beginPath(); c.arc(x, y, 8, 0, Math.PI*2);
+      c.fillStyle = dotColor + '33'; c.fill();
+    }
+    c.beginPath(); c.arc(x, y, isSelected ? 5 : 3.5, 0, Math.PI*2);
+    c.fillStyle = dotColor; c.fill();
+    c.strokeStyle = '#000'; c.lineWidth = 0.5; c.stroke();
+
+    // 값 레이블
+    if(isSelected) {
+      c.fillStyle = dotColor;
+      c.font = 'bold 10px JetBrains Mono, monospace';
+      c.textAlign = 'center';
+      c.fillText(d.avg.toFixed(3), x, y - 12);
+    }
+  });
+}
+
+// ── switchTab에 evaluate 케이스 추가 ──
+// (기존 switchTab 함수를 덮어씀)
+function switchTab(id, ev) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(ev && ev.currentTarget) ev.currentTarget.classList.add('active');
+  if(id==='kmeans')    resizeCanvas();
+  if(id==='recommend') renderRecommendTab();
+  if(id==='evaluate')  { Object.keys(silhouetteCache).forEach(k=>delete silhouetteCache[k]); renderEvaluateTab(); }
 }
 
 // ══════════════════════════════════════════
