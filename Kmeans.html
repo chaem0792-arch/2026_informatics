@@ -104,9 +104,11 @@
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
+    gap: 12px;
   }
   .table-title { font-size: 14px; font-weight: 700; }
   .table-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .table-header-right { display: flex; align-items: center; gap: 10px; }
   .user-count-badge {
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
@@ -116,6 +118,45 @@
     padding: 4px 10px;
     color: var(--accent);
   }
+
+  /* 랜덤 생성 버튼 */
+  .btn-regenerate {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-regenerate:hover { border-color: var(--accent4); color: var(--accent4); }
+  .btn-regenerate .regen-icon {
+    display: inline-block;
+    transition: transform 0.4s;
+  }
+  .btn-regenerate.spinning .regen-icon { transform: rotate(360deg); }
+
+  /* 시드 표시 */
+  .seed-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .seed-display span { color: var(--accent4); }
 
   .table-wrap {
     flex: 1;
@@ -148,10 +189,17 @@
     width: 60px; height: 5px; background: var(--border);
     border-radius: 3px; overflow: hidden;
   }
-  .mini-bar-fill { height: 100%; border-radius: 3px; }
+  .mini-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
   .td-cluster-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
   .table-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
   .table-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* 행 갱신 애니메이션 */
+  @keyframes rowFlash {
+    0% { background: rgba(188,140,255,0.15); }
+    100% { background: transparent; }
+  }
+  .row-updated { animation: rowFlash 0.5s ease-out forwards; }
 
   /* 탭 2 */
   .kmeans-layout { display: flex; flex: 1; overflow: hidden; }
@@ -273,6 +321,7 @@
     border-radius: 10px; padding: 14px 18px;
     font-size: 13px; color: var(--accent3);
     display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
   }
   .recommend-notice.done {
     background: rgba(63,185,80,0.08);
@@ -411,7 +460,13 @@
         <div class="table-title">👥 사용자 데이터</div>
         <div class="table-subtitle">각 행은 한 명의 사용자입니다.</div>
       </div>
-      <div class="user-count-badge">60명</div>
+      <div class="table-header-right">
+        <div class="seed-display">seed: <span id="seedDisplay">42</span></div>
+        <button class="btn-regenerate" id="regenBtn" onclick="regenerateDataset()">
+          <span class="regen-icon">🎲</span> 데이터 새로 생성
+        </button>
+        <div class="user-count-badge">60명</div>
+      </div>
     </div>
     <div class="table-wrap">
       <table id="userTable">
@@ -516,22 +571,21 @@
 
 <script>
 // ══════════════════════════════════════════
-// 속성 정의 (나이를 학습 속성으로 추가)
+// 속성 정의
 // ══════════════════════════════════════════
 const ATTRIBUTES = [
-  { id: 'age',       name: '나이',                icon: '🎂', unit: '세',   min: 10, max: 60,  color: '#ff7b72' },
-  { id: 'action',    name: '액션/장르 선호도',    icon: '🎬', unit: '점',   min: 0,  max: 100, color: '#58a6ff' },
-  { id: 'emotional', name: '감성 콘텐츠 선호도',  icon: '💛', unit: '점',   min: 0,  max: 100, color: '#f0883e' },
+  { id: 'age',       name: '나이',                icon: '🎂', unit: '세',    min: 10, max: 60,  color: '#ff7b72' },
+  { id: 'action',    name: '액션/장르 선호도',    icon: '🎬', unit: '점',    min: 0,  max: 100, color: '#58a6ff' },
+  { id: 'emotional', name: '감성 콘텐츠 선호도',  icon: '💛', unit: '점',    min: 0,  max: 100, color: '#f0883e' },
   { id: 'frequency', name: '주간 시청 횟수',      icon: '📅', unit: '편/주', min: 0,  max: 20,  color: '#3fb950' },
-  { id: 'rating',    name: '평균 평점',           icon: '⭐', unit: '점',   min: 1,  max: 5,   color: '#bc8cff' }
+  { id: 'rating',    name: '평균 평점',           icon: '⭐', unit: '점',    min: 1,  max: 5,   color: '#bc8cff' }
 ];
 
-// 산점도용 내부 축 (학생에게 노출되지 않음)
 const X_ATTR = 'action';
 const Y_ATTR = 'emotional';
 
 // ══════════════════════════════════════════
-// 사용자 데이터 생성
+// 시드 기반 난수
 // ══════════════════════════════════════════
 function seededRand(seed) {
   let s = seed;
@@ -552,53 +606,52 @@ const NAMES = [
 
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 
-function generateUsers() {
-  const rand = seededRand(42);
+// ── 핵심: seed를 받아 사용자 배열을 생성하는 함수 ──
+function generateUsers(seed) {
+  const rand = seededRand(seed);
   const users = [];
-  // 군집 1: 액션 마니아 — 비교적 젊은 층 (15~28세)
+
+  // 군집 1: 액션 마니아 — 젊은 층 (15~28세)
   for(let i=0;i<20;i++){
     users.push({
-      age: Math.round(clamp(rand()*13+15, 10, 60)),
-      action: Math.round(clamp(rand()*25+68, 0, 100)),
+      age:       Math.round(clamp(rand()*13+15, 10, 60)),
+      action:    Math.round(clamp(rand()*25+68, 0, 100)),
       emotional: Math.round(clamp(rand()*30+15, 0, 100)),
-      frequency: Math.round(clamp(rand()*6+9, 0, 20)*10)/10,
-      rating: Math.round(clamp(rand()*1.0+2.2, 1, 5)*10)/10
+      frequency: Math.round(clamp(rand()*6+9,  0, 20)*10)/10,
+      rating:    Math.round(clamp(rand()*1.0+2.2, 1, 5)*10)/10
     });
   }
   // 군집 2: 감성파 — 중간/장년층 (28~50세)
   for(let i=0;i<20;i++){
     users.push({
-      age: Math.round(clamp(rand()*22+28, 10, 60)),
-      action: Math.round(clamp(rand()*30+10, 0, 100)),
+      age:       Math.round(clamp(rand()*22+28, 10, 60)),
+      action:    Math.round(clamp(rand()*30+10, 0, 100)),
       emotional: Math.round(clamp(rand()*25+65, 0, 100)),
-      frequency: Math.round(clamp(rand()*5+3, 0, 20)*10)/10,
-      rating: Math.round(clamp(rand()*0.8+3.8, 1, 5)*10)/10
+      frequency: Math.round(clamp(rand()*5+3,  0, 20)*10)/10,
+      rating:    Math.round(clamp(rand()*0.8+3.8, 1, 5)*10)/10
     });
   }
   // 군집 3: 라이트 유저 — 다양한 연령 (18~55세)
   for(let i=0;i<20;i++){
     users.push({
-      age: Math.round(clamp(rand()*37+18, 10, 60)),
-      action: Math.round(clamp(rand()*40+30, 0, 100)),
+      age:       Math.round(clamp(rand()*37+18, 10, 60)),
+      action:    Math.round(clamp(rand()*40+30, 0, 100)),
       emotional: Math.round(clamp(rand()*40+25, 0, 100)),
-      frequency: Math.round(clamp(rand()*4+1, 0, 20)*10)/10,
-      rating: Math.round(clamp(rand()*1.2+2.8, 1, 5)*10)/10
+      frequency: Math.round(clamp(rand()*4+1,  0, 20)*10)/10,
+      rating:    Math.round(clamp(rand()*1.2+2.8, 1, 5)*10)/10
     });
   }
-  return users.map((u,i)=>({
-    id: i,
-    name: NAMES[i],
-    ...u,
-    cluster: -1
-  }));
+
+  return users.map((u,i)=>({ id: i, name: NAMES[i], ...u, cluster: -1 }));
 }
 
-const USERS = generateUsers();
-
 // ══════════════════════════════════════════
-// 상태
+// 전역 상태
 // ══════════════════════════════════════════
 const COLORS = ['#58a6ff','#3fb950','#f0883e','#bc8cff','#ff7b72','#ffa657'];
+
+let currentSeed = 42;
+let USERS = generateUsers(currentSeed);
 
 let dataset = [];
 let centroids = [];
@@ -623,6 +676,49 @@ function buildDataset() {
 }
 
 // ══════════════════════════════════════════
+// 🎲 데이터 랜덤 재생성
+// ══════════════════════════════════════════
+function regenerateDataset() {
+  if(isRunning) { showToast('알고리즘 실행 중에는 데이터를 바꿀 수 없습니다'); return; }
+
+  // 새 시드 생성 (1 ~ 9999)
+  const newSeed = Math.floor(Math.random() * 9999) + 1;
+  currentSeed = newSeed;
+  document.getElementById('seedDisplay').textContent = newSeed;
+
+  // 버튼 애니메이션
+  const btn = document.getElementById('regenBtn');
+  btn.classList.add('spinning');
+  setTimeout(()=>btn.classList.remove('spinning'), 400);
+
+  // 기존 값 저장 (행 변화 감지용)
+  const oldUsers = USERS.map(u=>({...u}));
+
+  // 새 데이터 생성
+  USERS = generateUsers(newSeed);
+  buildDataset();
+
+  // K-Means 상태 초기화 (데이터가 바뀌었으므로)
+  centroids=[]; assignments=[]; iteration=0;
+  isDone=false; isRunning=false; isPaused=false; hoveredPointIdx=-1;
+  if(pauseResolve){pauseResolve();pauseResolve=null;}
+  document.getElementById('iterCount').textContent=0;
+  const rb=document.getElementById('runBtn');
+  rb.disabled=true; rb.textContent='▶ 알고리즘 실행'; rb.className='btn btn-success';
+  document.getElementById('stepBtn').disabled=true;
+  document.getElementById('logPanel').innerHTML=
+    `<div class="log-entry"><span class="log-iter">갱신</span><span>seed ${newSeed} — 새 데이터 60명 생성</span></div>`;
+  updateCentroidList();
+  setStatus('',`새 데이터 생성됨 (seed: ${newSeed}). 중심점을 선택하세요.`);
+
+  // 테이블 업데이트 (변경된 행 강조)
+  renderTableWithDiff(oldUsers);
+  drawAll();
+
+  showToast(`🎲 seed ${newSeed}로 데이터를 새로 생성했습니다`);
+}
+
+// ══════════════════════════════════════════
 // 탭 전환
 // ══════════════════════════════════════════
 function switchTab(id, ev) {
@@ -638,21 +734,30 @@ function switchTab(id, ev) {
 // 탭 1 — 테이블
 // ══════════════════════════════════════════
 function renderTable() {
+  renderTableWithDiff(null);
+}
+
+function renderTableWithDiff(oldUsers) {
   const thead = document.getElementById('tableHead');
   const tbody = document.getElementById('tableBody');
 
   let headHTML = '<tr><th>이름</th>';
-  ATTRIBUTES.forEach(a => {
-    headHTML += `<th>${a.icon} ${a.name}</th>`;
-  });
+  ATTRIBUTES.forEach(a => { headHTML += `<th>${a.icon} ${a.name}</th>`; });
   if(isDone) headHTML += '<th>군집</th>';
   headHTML += '</tr>';
   thead.innerHTML = headHTML;
 
   tbody.innerHTML = '';
-  USERS.forEach(u => {
+  USERS.forEach((u,idx) => {
     const tr = document.createElement('tr');
     if(isDone && u.cluster >= 0) tr.style.borderLeft = `3px solid ${COLORS[u.cluster]}`;
+
+    // 값이 변경된 행이면 flash 애니메이션
+    if(oldUsers) {
+      const old = oldUsers[idx];
+      const changed = ATTRIBUTES.some(a => u[a.id] !== old[a.id]);
+      if(changed) tr.classList.add('row-updated');
+    }
 
     let html = `<td class="td-name">${u.name}</td>`;
     ATTRIBUTES.forEach(a => {
@@ -726,9 +831,7 @@ function drawAll() {
 
   if(dataset.length===0){ updateHint(); return; }
 
-  if(centroids.length>0){
-    drawVoronoi();
-  }
+  if(centroids.length>0) drawVoronoi();
 
   const centroidSrcIds = centroids.map(c=>c._srcIdx).filter(i=>i!==undefined);
 
@@ -973,12 +1076,10 @@ function updateCentroidList(){
 
 function updateHint(){
   const hint=document.getElementById('canvasHint');
-  const hintText=document.getElementById('canvasHintText');
   if(dataset.length>0 && (centroids.length>0||isDone)){
     hint.style.opacity='0';
   } else {
     hint.style.opacity='1';
-    hintText.innerHTML='데이터 포인트를 클릭하여<br>초기 중심점을 선택하세요';
   }
 }
 
@@ -1032,11 +1133,10 @@ function fullReset(){
   USERS.forEach(u=>u.cluster=-1);
   document.getElementById('iterCount').textContent=0;
   const rb=document.getElementById('runBtn');
-  rb.disabled=true;
-  rb.textContent='▶ 알고리즘 실행'; rb.className='btn btn-success';
+  rb.disabled=true; rb.textContent='▶ 알고리즘 실행'; rb.className='btn btn-success';
   document.getElementById('stepBtn').disabled=true;
   document.getElementById('logPanel').innerHTML=
-    `<div class="log-entry"><span class="log-iter">준비</span><span>데이터 ${USERS.length}명 로드 완료</span></div>`;
+    `<div class="log-entry"><span class="log-iter">준비</span><span>데이터 ${USERS.length}명 로드 완료 (seed: ${currentSeed})</span></div>`;
   updateCentroidList();
   setStatus('',`데이터 ${USERS.length}명. 중심점을 선택하세요.`);
   renderTable();
@@ -1074,9 +1174,7 @@ function renderRecommendTab(){
     if(!members.length) continue;
 
     const avgs={};
-    ATTRIBUTES.forEach(a=>{
-      avgs[a.id]=members.reduce((s,u)=>s+u[a.id],0)/members.length;
-    });
+    ATTRIBUTES.forEach(a=>{ avgs[a.id]=members.reduce((s,u)=>s+u[a.id],0)/members.length; });
 
     const tags=getClusterTags(avgs);
     const card=document.createElement('div');
@@ -1134,18 +1232,11 @@ function renderRecommendTab(){
 
 function getClusterTags(avgs){
   const tags=[];
-  const ageA=ATTRIBUTES.find(a=>a.id==='age');
-  const a=ATTRIBUTES.find(a=>a.id==='action');
-  const e=ATTRIBUTES.find(a=>a.id==='emotional');
-  const f=ATTRIBUTES.find(a=>a.id==='frequency');
-  const r=ATTRIBUTES.find(a=>a.id==='rating');
+  const aNorm=(avgs.action)/(100);
+  const eNorm=(avgs.emotional)/(100);
+  const fNorm=(avgs.frequency)/(20);
+  const rNorm=(avgs.rating-1)/(4);
 
-  const aNorm=(avgs.action-a.min)/(a.max-a.min);
-  const eNorm=(avgs.emotional-e.min)/(e.max-e.min);
-  const fNorm=(avgs.frequency-f.min)/(f.max-f.min);
-  const rNorm=(avgs.rating-r.min)/(r.max-r.min);
-
-  // 나이대 태그
   if(avgs.age < 25) tags.push('🧒 젊은층');
   else if(avgs.age < 40) tags.push('🧑 중간 연령');
   else tags.push('🧓 장년층');
@@ -1221,33 +1312,13 @@ function getRecommendations(avgs){
   const fNorm=avgs.frequency/20;
 
   if(aNorm>0.6 && eNorm<0.4){
-    return [
-      {emoji:'🚀',title:'미션 임파서블 시리즈'},
-      {emoji:'💥',title:'어벤저스: 엔드게임'},
-      {emoji:'🔥',title:'탑건: 매버릭'},
-      {emoji:'🥊',title:'크리드 III'},
-    ];
+    return [{emoji:'🚀',title:'미션 임파서블 시리즈'},{emoji:'💥',title:'어벤저스: 엔드게임'},{emoji:'🔥',title:'탑건: 매버릭'},{emoji:'🥊',title:'크리드 III'}];
   } else if(eNorm>0.6 && aNorm<0.4){
-    return [
-      {emoji:'💌',title:'비포 선라이즈'},
-      {emoji:'🌸',title:'500일의 썸머'},
-      {emoji:'😢',title:'나의 아저씨'},
-      {emoji:'🏡',title:'이웃집 토토로'},
-    ];
+    return [{emoji:'💌',title:'비포 선라이즈'},{emoji:'🌸',title:'500일의 썸머'},{emoji:'😢',title:'나의 아저씨'},{emoji:'🏡',title:'이웃집 토토로'}];
   } else if(fNorm<0.3){
-    return [
-      {emoji:'🎭',title:'쇼생크 탈출'},
-      {emoji:'🌟',title:'인터스텔라'},
-      {emoji:'🎬',title:'기생충'},
-      {emoji:'🎪',title:'그랜드 부다페스트 호텔'},
-    ];
+    return [{emoji:'🎭',title:'쇼생크 탈출'},{emoji:'🌟',title:'인터스텔라'},{emoji:'🎬',title:'기생충'},{emoji:'🎪',title:'그랜드 부다페스트 호텔'}];
   } else {
-    return [
-      {emoji:'🔍',title:'셜록 홈즈'},
-      {emoji:'🌍',title:'킹덤 (드라마)'},
-      {emoji:'🎮',title:'레디 플레이어 원'},
-      {emoji:'🌊',title:'인셉션'},
-    ];
+    return [{emoji:'🔍',title:'셜록 홈즈'},{emoji:'🌍',title:'킹덤 (드라마)'},{emoji:'🎮',title:'레디 플레이어 원'},{emoji:'🌊',title:'인셉션'}];
   }
 }
 
