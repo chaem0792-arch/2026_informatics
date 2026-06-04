@@ -228,9 +228,9 @@ function drawMaze(){
     ctx.font=`${fs}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText(emoji,x*CS+CS/2,y*CS+CS/2);
   }
-  REWARDS.forEach(([x,y])=>cell('🍎',x,y,'rgba(62,207,178,0.15)'));
-  PENALTIES.forEach(([x,y])=>cell('🔥',x,y,'rgba(224,92,138,0.12)'));
-  cell('🚪',GOAL[0],GOAL[1],'rgba(124,92,191,0.15)');
+  REWARDS.forEach(([x,y])=>cell('🍎',x,y,'rgba(62,207,178,0.28)'));
+  PENALTIES.forEach(([x,y])=>cell('🔥',x,y,'rgba(224,92,138,0.25)'));
+  cell('🚪',GOAL[0],GOAL[1],'rgba(124,92,191,0.28)');
 
   // START 텍스트
   ctx.font=`bold ${Math.floor(CS*0.22)}px 'Gowun Dodum',sans-serif`;
