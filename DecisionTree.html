@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>실시간 의사결정트리 실습 랩 🐧</title>
+<title> 의사결정트리 실습 랩 🐧</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Black+Han+Sans&display=swap');
@@ -184,14 +184,14 @@
   <div class="section active" id="sec0">
     <div class="section-header">
       <h2>📊 펭귄 데이터셋 생성 (30개 샘플)</h2>
-      <p>랜덤 버튼을 누르면 완전히 변형된 난수 데이터가 들어옵니다. 데이터가 바뀌어도 컴퓨터가 최적의 질문 값을 찾아내니 걱정 마세요!</p>
+      <p>랜덤 버튼을 누르면 완전히 변형된 난수 데이터가 들어옵니다. 데이터의 값에 따라 분류 기준이 바뀝니다.</p>
     </div>
     <div class="card">
-      <div class="card-title"><div class="icon" style="background:rgba(124,92,191,0.2)">📋</div> 원본 데이터셋 리스트</div>
-      <button class="btn btn-teal" onclick="generateRandomDataset()" style="margin-bottom:16px;">🎲 무작위 신체 데이터 30개 생성</button>
+      <div class="card-title"><div class="icon" style="background:rgba(124,92,191,0.2)">📋</div> 데이터셋 </div>
+      <button class="btn btn-teal" onclick="generateRandomDataset()" style="margin-bottom:16px;">🎲 무작위 데이터 30개 생성</button>
       <div class="table-wrapper">
         <table>
-          <thead><tr><th>ID</th><th>부리 길이 (mm)</th><th>날개 길이 (mm)</th><th>품종</th></tr></thead>
+          <thead><tr><th>ID</th><th>부리 길이 (mm)</th><th>날개 길이 (mm)</th><th>종</th></tr></thead>
           <tbody id="rawTableBody"></tbody>
         </table>
       </div>
@@ -203,7 +203,7 @@
   <div class="section" id="sec1">
     <div class="section-header">
       <h2>🔍 훈련 전 데이터 탐색하기</h2>
-      <p>데이터를 시각화하여 각 펭귄 품종의 특징을 직접 눈으로 확인해 보세요. 어떤 특징이 품종을 구별하는 데 유용할지 생각해 보세요!</p>
+      <p>데이터를 시각화하여 펭귄의 종류에 따른 특징을 눈으로 확인해 보세요.</p>
     </div>
 
     <div class="card">
@@ -268,7 +268,7 @@
 
     <!-- 품종별 요약 통계 -->
     <div class="card">
-      <div class="card-title"><div class="icon" style="background:rgba(62,207,178,0.2)">📌</div> 품종별 신체 특징 요약</div>
+      <div class="card-title"><div class="icon" style="background:rgba(62,207,178,0.2)">📌</div> 품종별 특징 요약</div>
       <div class="species-insight-grid" id="speciesSummary"></div>
     </div>
 
@@ -293,7 +293,7 @@
         <div class="split-train" id="barTrain" style="width:70%">훈련 (70%)</div>
         <div class="split-test" id="barTest" style="width:30%">테스트 (30%)</div>
       </div>
-      <button class="btn btn-teal" onclick="splitData()">🎲 비율대로 데이터 무작위 분할 실행</button>
+      <button class="btn btn-teal" onclick="splitData()">🎲 데이터 분할 실행</button>
       <div class="split-layout">
         <div>
           <div class="card-title" style="font-size:14px;">📖 훈련 데이터 (<span id="trainLabelCount">0</span>)</div>
