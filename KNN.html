@@ -273,6 +273,11 @@ input[type=range]{width:100%;accent-color:var(--pass);height:4px;margin-top:2px}
         <input type="number" id="s3-sleep" min="4" max="10" step="0.5" value="7" oninput="onS3Input()">
         <div class="coord-display" id="s3-coord"><span>좌표</span>&nbsp;(5.0, 7.0)</div>
 
+        <div class="coord-display" id="s3-kdisplay" style="margin-top:6px;display:flex;justify-content:center;align-items:center;gap:8px">
+          <span>2단계에서 설정한 K 값</span>
+          <strong style="font-family:var(--mono);color:#86efac;font-size:1rem" id="s3-kval">3</strong>
+        </div>
+
         <div class="divider"></div>
         <div class="section-label">① 내 분류는?</div>
         <div class="pred-btns">
@@ -282,7 +287,10 @@ input[type=range]{width:100%;accent-color:var(--pass);height:4px;margin-top:2px}
         </div>
 
         <div class="btn-row" style="margin-top:12px">
-          <button class="btn btn-primary btn-full" onclick="s3Run()">② 산점도에 찍고 K-NN 결과 확인</button>
+          <button class="btn btn-full" onclick="s3PlotPoint()">② 산점도에 좌표 찍기</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary btn-full" onclick="s3Run()">③ K-NN 결과 확인</button>
         </div>
         <div class="btn-row">
           <button class="btn btn-full" onclick="s3Reset()">초기화</button>
@@ -421,7 +429,11 @@ function goStep(n) {
     sb.classList.toggle('done', i < n);
     sb.disabled = (i >= 3 && unlockedUpTo < 3);
   }
-  if (n === 3) initS3Chart();
+  if (n === 3) {
+    initS3Chart();
+    const s3kv = document.getElementById('s3-kval');
+    if (s3kv) s3kv.textContent = kVal;
+  }
 }
 
 function unlockUpto(n) {
@@ -538,6 +550,9 @@ function applySplit() {
   document.getElementById('step2-viz').style.display = 'block';
   document.querySelector('#sec2 .alert-info').style.display = 'none';
   document.getElementById('s4-info').textContent = `K=${kVal} · 훈련 ${trainSet.length}개 · 테스트 ${testSet.length}개`;
+  // STEP 3 화면에 K 값 표시 동기화
+  const s3kv = document.getElementById('s3-kval');
+  if (s3kv) s3kv.textContent = kVal;
   unlockUpto(4);
 
   // reset s3/s4
@@ -576,6 +591,33 @@ function s3SelectPred(p) {
   document.getElementById('pb-p').className = 'pred-btn'+(p==='합격'   ?' sel-pass':'');
   document.getElementById('pb-f').className = 'pred-btn'+(p==='불합격' ?' sel-fail':'');
   document.getElementById('pb-h').className = 'pred-btn'+(p==='보류'   ?' sel-hold':'');
+}
+
+function s3PlotPoint() {
+  if (trainSet.length === 0) { alert('먼저 훈련/테스트 분할을 완료해주세요.'); return; }
+  const st = parseFloat(document.getElementById('s3-study').value)||5;
+  const sl = parseFloat(document.getElementById('s3-sleep').value)||7;
+
+  // 새 데이터 좌표만 산점도에 표시 (이웃 표시는 하지 않음)
+  initS3Chart();
+  const ds = charts.s3.data.datasets;
+  const g  = buildTrainGroups(trainSet);
+  ds[0].data = g['합격'].map(p=>({...p}));
+  ds[1].data = g['불합격'].map(p=>({...p}));
+  ds[2].data = g['보류'].map(p=>({...p}));
+  ds[3].data = []; // K 이웃은 아직 표시 안 함
+  ds[4].data = [{x:st,y:sl}];
+  // 훈련 데이터는 원래 색상 유지
+  ds[0].backgroundColor = C.pass;
+  ds[1].backgroundColor = C.fail;
+  ds[2].backgroundColor = C.hold;
+  charts.s3.update();
+
+  document.getElementById('s3-leg-new').style.display='flex';
+  document.getElementById('s3-leg-nb').style.display='none';
+
+  // 결과 카드는 숨김 (좌표만 찍은 상태)
+  document.getElementById('s3-result-card').style.display='none';
 }
 
 function s3Run() {
